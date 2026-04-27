@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Static's Browser Games</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg0: #080a0f;
+        --bg1: #11192b;
+        --panel: rgba(12, 18, 32, 0.84);
+        --panel-border: rgba(127, 187, 255, 0.16);
+        --text: #f2f6ff;
+        --muted: #9aabc6;
+        --cyan: #7bd8ff;
+        --gold: #ffd971;
+        --pink: #ff78c8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top left, rgba(123, 216, 255, 0.12), transparent 24%),
+          radial-gradient(circle at bottom right, rgba(255, 120, 200, 0.12), transparent 22%),
+          linear-gradient(180deg, var(--bg1), var(--bg0));
+      }
+
+      main {
+        width: min(1080px, calc(100vw - 28px));
+        margin: 0 auto;
+        padding: 40px 0 52px;
+      }
+
+      .hero {
+        margin-bottom: 24px;
+      }
+
+      .eyebrow {
+        margin: 0 0 8px;
+        color: var(--muted);
+        font-size: 0.78rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0 0 12px;
+        font-size: clamp(2rem, 5vw, 3.5rem);
+      }
+
+      .hero p {
+        margin: 0;
+        max-width: 760px;
+        line-height: 1.7;
+        color: var(--muted);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 18px;
+      }
+
+      .card {
+        display: block;
+        padding: 22px;
+        border-radius: 24px;
+        text-decoration: none;
+        color: inherit;
+        background: var(--panel);
+        border: 1px solid var(--panel-border);
+        box-shadow: 0 24px 56px rgba(0, 0, 0, 0.38);
+        transition: transform 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
+      }
+
+      .card:hover,
+      .card:focus-visible {
+        transform: translateY(-2px);
+        border-color: rgba(255, 255, 255, 0.2);
+        box-shadow: 0 28px 60px rgba(0, 0, 0, 0.46);
+      }
+
+      .badge {
+        display: inline-block;
+        margin-bottom: 12px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 700;
+      }
+
+      .badge.cyan {
+        background: rgba(123, 216, 255, 0.14);
+        color: var(--cyan);
+      }
+
+      .badge.gold {
+        background: rgba(255, 217, 113, 0.14);
+        color: var(--gold);
+      }
+
+      .card h2 {
+        margin: 0 0 10px;
+        font-size: 1.5rem;
+      }
+
+      .card p {
+        margin: 0 0 16px;
+        line-height: 1.65;
+        color: var(--muted);
+      }
+
+      .meta {
+        color: var(--pink);
+        font-weight: 700;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <p class="eyebrow">GitHub Game Hub</p>
+        <h1>Static's Browser Games</h1>
+        <p>
+          Each game lives in its own folder so this repo works cleanly on GitHub Pages.
+          Click any card below to launch a game directly from its own `index.html`.
+        </p>
+      </section>
+
+      <section class="grid">
+        <a class="card" href="./games/void-dodge/index.html">
+          <span class="badge cyan">2D Arcade Survival</span>
+          <h2>Void Dodge</h2>
+          <p>
+            Move a glowing square, dodge falling obstacles, and survive long enough to push your score.
+          </p>
+          <span class="meta">Open game</span>
+        </a>
+
+        <a class="card" href="./games/neon-rift-3d/index.html">
+          <span class="badge gold">3D Neon Flyer</span>
+          <h2>Neon Rift 3D</h2>
+          <p>
+            Fly through a glowing rift, dodge crystal shards, collect energy orbs, and build up speed.
+          </p>
+          <span class="meta">Open game</span>
+        </a>
+      </section>
+    </main>
+  </body>
+</html>

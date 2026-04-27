@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Void Dodge</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="hud-bar">
+        <div class="brand">
+          <span class="brand-mark"></span>
+          <div>
+            <p class="eyebrow">Arcade Survival</p>
+            <h1>Void Dodge</h1>
+          </div>
+        </div>
+        <div class="stats">
+          <div class="stat-card">
+            <span class="stat-label">Score</span>
+            <strong id="scoreValue">0</strong>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Best</span>
+            <strong id="bestValue">0</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="game-panel">
+        <canvas
+          id="gameCanvas"
+          width="960"
+          height="540"
+          aria-label="Arcade dodge game"
+        ></canvas>
+
+        <div class="overlay active" id="startOverlay">
+          <div class="overlay-card">
+            <p class="eyebrow">Stay Alive</p>
+            <h2>Dodge the storm.</h2>
+            <p>
+              Move with <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> or the
+              arrow keys. Survive as long as you can.
+            </p>
+            <button id="startButton" type="button">Start Game</button>
+          </div>
+        </div>
+
+        <div class="overlay" id="gameOverOverlay" aria-hidden="true">
+          <div class="overlay-card">
+            <p class="eyebrow">Run Ended</p>
+            <h2>Game Over</h2>
+            <p id="gameOverMessage">You lasted 0 seconds.</p>
+            <button id="restartButton" type="button">Restart</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="./game.js"></script>
+  </body>
+</html>
