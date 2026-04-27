@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Neon Rift 3D</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div class="title-wrap">
+          <span class="pulse-dot"></span>
+          <div>
+            <p class="label">3D Arcade Run</p>
+            <h1>Neon Rift 3D</h1>
+          </div>
+        </div>
+        <div class="hud">
+          <div class="hud-card">
+            <span>Score</span>
+            <strong id="scoreValue">0</strong>
+          </div>
+          <div class="hud-card">
+            <span>Best</span>
+            <strong id="bestValue">0</strong>
+          </div>
+          <div class="hud-card">
+            <span>Boost</span>
+            <strong id="boostValue">1.0x</strong>
+          </div>
+        </div>
+      </header>
+
+      <section class="game-frame">
+        <canvas id="gameCanvas" width="1280" height="720" aria-label="3D arcade tunnel game"></canvas>
+
+        <div class="overlay active" id="startOverlay">
+          <div class="panel">
+            <p class="label">Pilot Briefing</p>
+            <h2>Thread the rift.</h2>
+            <p>
+              Fly through a collapsing neon canyon. Dodge crystal shards, collect energy orbs,
+              and survive long enough to push your boost multiplier higher.
+            </p>
+            <p>
+              Use <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> or arrow keys. Hold
+              <kbd>Shift</kbd> for a riskier burst of speed.
+            </p>
+            <button id="startButton" type="button">Launch</button>
+          </div>
+        </div>
+
+        <div class="overlay" id="gameOverOverlay" aria-hidden="true">
+          <div class="panel">
+            <p class="label">Run Complete</p>
+            <h2>Hull Breach</h2>
+            <p id="gameOverMessage">You scored 0.</p>
+            <button id="restartButton" type="button">Fly Again</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="./game.js"></script>
+  </body>
+</html>

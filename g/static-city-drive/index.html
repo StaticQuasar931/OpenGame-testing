@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Static City Drive</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="hud-bar">
+        <div class="brand">
+          <div>
+            <p class="eyebrow">Game 03</p>
+            <h1>Static City Drive</h1>
+            <p class="sub">Static's GTA Simulator</p>
+          </div>
+        </div>
+        <div class="stats">
+          <div class="stat-card"><span>Score</span><strong id="scoreValue">0</strong></div>
+          <div class="stat-card"><span>Packages</span><strong id="packageValue">0 / 10</strong></div>
+          <div class="stat-card"><span>Time</span><strong id="timeValue">0.0s</strong></div>
+          <div class="stat-card"><span>Wanted</span><strong id="wantedValue">0</strong></div>
+          <div class="stat-card"><span>Hull</span><strong id="healthValue">3</strong></div>
+        </div>
+      </header>
+      <section class="frame">
+        <canvas id="gameCanvas" width="1280" height="720" aria-label="Static City Drive 3D game"></canvas>
+        <aside class="side-panel">
+          <div class="mini-panel">
+            <h2>Mission</h2>
+            <p>Collect 10 packages around the city before the cops shut you down.</p>
+            <div id="goalValue" class="goal-line">Next package: 0m</div>
+          </div>
+          <div class="mini-panel">
+            <h2>Controls</h2>
+            <p>WASD or arrows drive</p><p>Space brake</p><p>Shift boost</p><p>R reset car</p><p>F EMP pulse</p><p>H help</p>
+          </div>
+          <div class="mini-panel">
+            <h2>Law System</h2>
+            <p id="lawValue">Keep moving. No police yet.</p>
+          </div>
+          <canvas id="minimap" width="220" height="220" aria-label="Minimap"></canvas>
+        </aside>
+        <div class="overlay active" id="startOverlay">
+          <div class="panel">
+            <p class="eyebrow">Open-World Driving Action</p>
+            <h2>Package run through Static City.</h2>
+            <p>This is an original city-driving game inspired by the open-world crime-driving genre. No GTA assets are used here. Everything is low-poly and browser-friendly.</p>
+            <p>Collect 10 glowing packages, outrun the police, and use the EMP pulse when they crowd you.</p>
+            <button id="startButton" type="button">Start Run</button>
+          </div>
+        </div>
+        <div class="overlay" id="gameOverOverlay" aria-hidden="true">
+          <div class="panel">
+            <p class="eyebrow">Run Over</p>
+            <h2 id="gameOverTitle">Busted</h2>
+            <p id="gameOverMessage">You scored 0.</p>
+            <button id="restartButton" type="button">Retry</button>
+          </div>
+        </div>
+        <div class="overlay small" id="helpOverlay" aria-hidden="true">
+          <div class="panel">
+            <p class="eyebrow">Help</p>
+            <h2>How this works</h2>
+            <p>Follow the arrow and minimap to the next package.</p>
+            <p>After 3 packages, police units begin chasing you. Their contact costs hull.</p>
+            <p>Boost for speed, brake into corners, and use F to fire an EMP pulse forward.</p>
+            <button id="closeHelpButton" type="button">Close Help</button>
+          </div>
+        </div>
+      </section>
+    </main>
+    <script src="./game.js"></script>
+  </body>
+</html>

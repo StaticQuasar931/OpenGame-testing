@@ -1,0 +1,14 @@
+Build an original browser-based 3D open-world driving and action game called "Static City Drive".
+
+Requirements:
+- Original city map with roads, buildings, sidewalks, streetlights, and props.
+- Third-person driving with WASD or arrows.
+- Space brake, Shift boost, R reset.
+- 10 glowing packages to collect.
+- Timer, score, package counter, damage, wanted level, and instructions UI.
+- Police chase begins after 3 packages.
+- Police contact can defeat the player after multiple hits.
+- Add a minimap or guidance arrow to the next package.
+- Add a simple weapon or anti-police tool.
+- Keep it light and Chromebook-friendly.
+- Use static HTML/CSS/JS and make it directly browser-playable.

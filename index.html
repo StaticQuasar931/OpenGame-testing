@@ -3,155 +3,62 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Static's Browser Games</title>
+    <title>Static's Browser Arcade</title>
     <style>
-      :root {
-        color-scheme: dark;
-        --bg0: #080a0f;
-        --bg1: #11192b;
-        --panel: rgba(12, 18, 32, 0.84);
-        --panel-border: rgba(127, 187, 255, 0.16);
-        --text: #f2f6ff;
-        --muted: #9aabc6;
-        --cyan: #7bd8ff;
-        --gold: #ffd971;
-        --pink: #ff78c8;
-      }
-
-      * {
-        box-sizing: border-box;
-      }
-
-      body {
-        margin: 0;
-        min-height: 100vh;
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        color: var(--text);
-        background:
-          radial-gradient(circle at top left, rgba(123, 216, 255, 0.12), transparent 24%),
-          radial-gradient(circle at bottom right, rgba(255, 120, 200, 0.12), transparent 22%),
-          linear-gradient(180deg, var(--bg1), var(--bg0));
-      }
-
-      main {
-        width: min(1080px, calc(100vw - 28px));
-        margin: 0 auto;
-        padding: 40px 0 52px;
-      }
-
-      .hero {
-        margin-bottom: 24px;
-      }
-
-      .eyebrow {
-        margin: 0 0 8px;
-        color: var(--muted);
-        font-size: 0.78rem;
-        letter-spacing: 0.18em;
-        text-transform: uppercase;
-      }
-
-      h1 {
-        margin: 0 0 12px;
-        font-size: clamp(2rem, 5vw, 3.5rem);
-      }
-
-      .hero p {
-        margin: 0;
-        max-width: 760px;
-        line-height: 1.7;
-        color: var(--muted);
-      }
-
-      .grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 18px;
-      }
-
-      .card {
-        display: block;
-        padding: 22px;
-        border-radius: 24px;
-        text-decoration: none;
-        color: inherit;
-        background: var(--panel);
-        border: 1px solid var(--panel-border);
-        box-shadow: 0 24px 56px rgba(0, 0, 0, 0.38);
-        transition: transform 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
-      }
-
-      .card:hover,
-      .card:focus-visible {
-        transform: translateY(-2px);
-        border-color: rgba(255, 255, 255, 0.2);
-        box-shadow: 0 28px 60px rgba(0, 0, 0, 0.46);
-      }
-
-      .badge {
-        display: inline-block;
-        margin-bottom: 12px;
-        padding: 6px 10px;
-        border-radius: 999px;
-        font-size: 0.78rem;
-        font-weight: 700;
-      }
-
-      .badge.cyan {
-        background: rgba(123, 216, 255, 0.14);
-        color: var(--cyan);
-      }
-
-      .badge.gold {
-        background: rgba(255, 217, 113, 0.14);
-        color: var(--gold);
-      }
-
-      .card h2 {
-        margin: 0 0 10px;
-        font-size: 1.5rem;
-      }
-
-      .card p {
-        margin: 0 0 16px;
-        line-height: 1.65;
-        color: var(--muted);
-      }
-
-      .meta {
-        color: var(--pink);
-        font-weight: 700;
-      }
+      :root { color-scheme: dark; --bg0:#070910; --bg1:#0e1627; --panel:rgba(11,18,31,.85); --panel-border:rgba(126,189,255,.16); --text:#eef5ff; --muted:#94a8c8; --cyan:#7bd9ff; --pink:#ff7dd0; --gold:#ffd66e; }
+      * { box-sizing: border-box; }
+      body { margin:0; min-height:100vh; font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif; color:var(--text); background:radial-gradient(circle at top left, rgba(123,217,255,.12), transparent 24%),radial-gradient(circle at bottom right, rgba(255,125,208,.12), transparent 22%),linear-gradient(180deg,var(--bg1),var(--bg0)); }
+      main { width:min(1160px, calc(100vw - 28px)); margin:0 auto; padding:34px 0 50px; }
+      .hero { display:grid; grid-template-columns:1.2fr .8fr; gap:18px; margin-bottom:22px; }
+      .panel,.game-card { background:var(--panel); border:1px solid var(--panel-border); border-radius:24px; box-shadow:0 26px 62px rgba(0,0,0,.38); }
+      .panel { padding:24px; }
+      .eyebrow { margin:0 0 8px; color:var(--muted); font-size:.78rem; letter-spacing:.18em; text-transform:uppercase; }
+      h1 { margin:0 0 12px; font-size:clamp(2rem, 5vw, 3.4rem); }
+      .lede,.meta p,.notes li { color:var(--muted); line-height:1.7; }
+      .stamp { display:inline-flex; gap:8px; margin-top:14px; padding:10px 14px; border-radius:999px; background:rgba(255,255,255,.04); color:var(--text); font-size:.92rem; }
+      .notes { margin:0; padding-left:18px; }
+      .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:18px; }
+      .game-card { overflow:hidden; text-decoration:none; color:inherit; transition:transform 140ms ease, border-color 140ms ease; }
+      .game-card:hover,.game-card:focus-visible { transform:translateY(-2px); border-color:rgba(255,255,255,.2); }
+      .thumb { width:100%; aspect-ratio:16/9; object-fit:cover; display:block; background:#05070b; }
+      .meta { padding:18px 18px 20px; }
+      .num { display:inline-block; margin-bottom:10px; padding:6px 10px; border-radius:999px; font-size:.76rem; font-weight:700; }
+      .n1 { background:rgba(123,217,255,.14); color:var(--cyan); } .n2 { background:rgba(255,214,110,.14); color:var(--gold); } .n3 { background:rgba(255,125,208,.14); color:var(--pink); }
+      h2 { margin:0 0 10px; font-size:1.45rem; }
+      .meta strong { color:var(--text); }
+      @media (max-width: 900px) { .hero { grid-template-columns:1fr; } }
     </style>
   </head>
   <body>
     <main>
       <section class="hero">
-        <p class="eyebrow">GitHub Game Hub</p>
-        <h1>Static's Browser Games</h1>
-        <p>
-          Each game lives in its own folder so this repo works cleanly on GitHub Pages.
-          Click any card below to launch a game directly from its own `index.html`.
-        </p>
+        <article class="panel">
+          <p class="eyebrow">Static Browser Arcade</p>
+          <h1>Three playable browser games, one clean launcher.</h1>
+          <p class="lede">This repo is organized for direct browser play and GitHub Pages style hosting. Each game lives in <code>g/</code>. Extras, previews, and OpenGame notes live in <code>misc/</code>.</p>
+          <div class="stamp"><span>Build 03</span><span>2026-04-27</span><span>America/Los_Angeles</span></div>
+        </article>
+        <aside class="panel">
+          <p class="eyebrow">Notes</p>
+          <ul class="notes">
+            <li>You can try multiple games from this page.</li>
+            <li>Game 03 is an original open-world city driving game inspired by the genre, not GTA assets.</li>
+            <li>OpenGame is installed locally here, but its full generator runtime still needs external auth. See <code>misc/opengame/</code>.</li>
+          </ul>
+        </aside>
       </section>
-
       <section class="grid">
-        <a class="card" href="./games/void-dodge/index.html">
-          <span class="badge cyan">2D Arcade Survival</span>
-          <h2>Void Dodge</h2>
-          <p>
-            Move a glowing square, dodge falling obstacles, and survive long enough to push your score.
-          </p>
-          <span class="meta">Open game</span>
+        <a class="game-card" href="./g/void-dodge/index.html">
+          <img class="thumb" src="./misc/assets/void-dodge-preview.svg" alt="Void Dodge preview" />
+          <div class="meta"><span class="num n1">01</span><h2>Void Dodge</h2><p>Fast survival dodging with dark UI, rising pressure, and quick restart loops.</p><strong>Open game</strong></div>
         </a>
-
-        <a class="card" href="./games/neon-rift-3d/index.html">
-          <span class="badge gold">3D Neon Flyer</span>
-          <h2>Neon Rift 3D</h2>
-          <p>
-            Fly through a glowing rift, dodge crystal shards, collect energy orbs, and build up speed.
-          </p>
-          <span class="meta">Open game</span>
+        <a class="game-card" href="./g/neon-rift-3d/index.html">
+          <img class="thumb" src="./misc/assets/neon-rift-preview.svg" alt="Neon Rift 3D preview" />
+          <div class="meta"><span class="num n2">02</span><h2>Neon Rift 3D</h2><p>Stylized 3D tunnel flying with neon shards, pickups, and a speed-heavy arcade feel.</p><strong>Open game</strong></div>
+        </a>
+        <a class="game-card" href="./g/static-city-drive/index.html">
+          <img class="thumb" src="./misc/assets/static-city-drive-preview.svg" alt="Static City Drive preview" />
+          <div class="meta"><span class="num n3">03</span><h2>Static City Drive</h2><p>Original GTA-style city driving and action with package runs, police pressure, boost, and an EMP blaster.</p><strong>Open game</strong></div>
         </a>
       </section>
     </main>
