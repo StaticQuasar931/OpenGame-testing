@@ -9,6 +9,7 @@
   const ctx = canvas.getContext("2d", { alpha: false });
   const minimap = document.getElementById("minimap");
   const mapCtx = minimap.getContext("2d", { alpha: false });
+  const playfield = document.querySelector(".playfield");
 
   const startOverlay = document.getElementById("startOverlay");
   const helpOverlay = document.getElementById("helpOverlay");
@@ -16,16 +17,22 @@
   const gameOverTitle = document.getElementById("gameOverTitle");
   const gameOverMessage = document.getElementById("gameOverMessage");
   const startButton = document.getElementById("startButton");
+  const startHelpButton = document.getElementById("startHelpButton");
   const restartButton = document.getElementById("restartButton");
+  const gameOverHelpButton = document.getElementById("gameOverHelpButton");
   const closeHelpButton = document.getElementById("closeHelpButton");
+  const lockChip = document.getElementById("lockChip");
+  const statusRibbon = document.getElementById("statusRibbon");
 
   const scoreValue = document.getElementById("scoreValue");
   const packageValue = document.getElementById("packageValue");
   const timeValue = document.getElementById("timeValue");
   const wantedValue = document.getElementById("wantedValue");
   const healthValue = document.getElementById("healthValue");
+  const bestValue = document.getElementById("bestValue");
   const goalValue = document.getElementById("goalValue");
   const lawValue = document.getElementById("lawValue");
+  const hintValue = document.getElementById("hintValue");
 
   const WORLD = { width: 2400, height: 2400 };
   const VIEW = { width: 1280, height: 720 };
@@ -59,6 +66,10 @@
       particles: [],
       lastTime: 0,
       helpVisible: false,
+      cursorLocked: false,
+      mouseSteer: 0,
+      statusText: "Click the road view to lock the mouse.",
+      statusTimer: 0,
       player: {
         x: 180,
         y: 300,
@@ -74,6 +85,18 @@
       packages: [],
       trafficProps: buildTrafficProps(),
     };
+  }
+
+  function setStatus(text, duration) {
+    game.statusText = text;
+    game.statusTimer = duration || 0;
+    statusRibbon.textContent = text;
+  }
+
+  function refreshLockUi() {
+    playfield.classList.toggle("locked", game.cursorLocked);
+    lockChip.classList.toggle("live", game.cursorLocked);
+    lockChip.textContent = game.cursorLocked ? "Mouse locked" : "Mouse free";
   }
 
   function buildCity() {
@@ -235,10 +258,13 @@
     game.player.vy = 0;
     game.player.hitCooldown = 0;
     game.player.empCooldown = 0;
+    game.mouseSteer = 0;
     spawnPackages();
     updateHud();
     lawValue.textContent = "Keep moving. No police yet.";
+    hintValue.textContent = "Boost on straight roads. Brake before turns.";
     goalValue.textContent = "Next package: ready";
+    setStatus("Click the road view to lock the mouse.", 0);
   }
 
   function updateHud() {
@@ -247,6 +273,7 @@
     timeValue.textContent = game.time.toFixed(1) + "s";
     wantedValue.textContent = "★".repeat(game.wanted) || "0";
     healthValue.textContent = String(game.health);
+    bestValue.textContent = String(Math.max(game.bestScore, Math.floor(game.score)));
   }
 
   function spawnCop() {
@@ -276,6 +303,8 @@
     syncPoliceCount();
     const labels = ["City calm.", "One patrol on you.", "Two patrols active.", "Full heat. Three patrols active."];
     lawValue.textContent = labels[next];
+    const status = ["No heat yet.", "Wanted level up. Patrol incoming.", "City alert escalated. Two patrols active.", "Maximum heat. Survive the shutdown."][next];
+    setStatus(status, 3.2);
   }
 
   function getNextPackage() {
@@ -300,6 +329,10 @@
     const boundedY = clamp(nextY, margin, WORLD.height - margin);
     if (pointHitsBuilding(boundedX, boundedY, margin)) {
       vehicle.speed *= -0.18;
+      if (vehicle === game.player) {
+        burstParticles(vehicle.x, vehicle.y, "#ff9c6f", 12);
+        setStatus("Wall impact. Brake before tighter turns.", 1.8);
+      }
       return;
     }
     vehicle.x = boundedX;
@@ -311,6 +344,8 @@
     game.running = true;
     startOverlay.classList.remove("active");
     gameOverOverlay.classList.remove("active");
+    requestPointerLock();
+    setStatus("Package run live. Follow the arrow to the first pickup.", 3.4);
   }
 
   function endGame(victory) {
@@ -344,18 +379,28 @@
     if (accelerate) accel += boosting ? 160 : 110;
     if (reverse) accel -= 90;
     p.speed += accel * delta;
-    p.speed *= braking ? 0.91 : 0.985;
+    p.speed *= braking ? 0.9 : 0.986;
     p.speed = clamp(p.speed, -80, boosting ? 300 : 220);
     if (Math.abs(p.speed) > 4) {
-      const steer = (left ? 1 : 0) - (right ? 1 : 0);
+      const keySteer = (left ? 1 : 0) - (right ? 1 : 0);
+      const mouseSteer = game.cursorLocked ? clamp(game.mouseSteer, -1.2, 1.2) : 0;
+      const steer = keySteer + mouseSteer;
       p.angle += (steer * delta * 1.8 * clamp(Math.abs(p.speed) / 120, 0.4, 1.4)) * (p.speed >= 0 ? 1 : -1);
     }
+    game.mouseSteer *= game.cursorLocked ? 0.74 : 0.5;
     p.vx = Math.sin(p.angle) * p.speed;
     p.vy = Math.cos(p.angle) * p.speed;
     moveVehicle(p, delta, 16);
     if (boosting && accelerate) game.score += delta * 16;
     if (p.empCooldown > 0) p.empCooldown -= delta;
     if (p.hitCooldown > 0) p.hitCooldown -= delta;
+    if (game.statusTimer > 0) {
+      game.statusTimer -= delta;
+      if (game.statusTimer <= 0) {
+        setStatus(game.cursorLocked ? "Mouse locked. Stay smooth through corners." : "Click the road view to lock the mouse.", 0);
+      }
+    }
+    hintValue.textContent = Math.abs(p.speed) > 210 ? "You are flying. Brake sooner for intersections." : game.cursorLocked ? "Mouse steering active. Small movements work best." : "Click the road view for mouse steering.";
   }
 
   function updatePackages(delta) {
@@ -369,6 +414,7 @@
       game.packagesCollected += 1;
       game.score += 400 + Math.max(0, 220 - game.time * 2);
       burstParticles(target.x, target.y, "#ffd567", 18);
+      setStatus("Package secured. Move to the next glow.", 2.4);
       setWanted(game.packagesCollected >= 9 ? 3 : game.packagesCollected >= 6 ? 2 : game.packagesCollected >= 3 ? 1 : 0);
       if (game.packagesCollected >= PACKAGE_TOTAL) endGame(true);
     }
@@ -402,6 +448,7 @@
         game.health -= 1;
         game.score = Math.max(0, game.score - 120);
         burstParticles(p.x, p.y, "#ff7961", 20);
+        setStatus("Police ram landed. Hull integrity down.", 1.8);
         if (game.health <= 0) {
           endGame(false);
           return;
@@ -414,6 +461,7 @@
     const p = game.player;
     if (p.empCooldown > 0 || !game.running) return;
     p.empCooldown = 1.1;
+    setStatus("EMP pulse fired.", 1.1);
     game.bullets.push({ x: p.x + Math.sin(p.angle) * 34, y: p.y + Math.cos(p.angle) * 34, angle: p.angle, life: 1.2, speed: 360 });
   }
 
@@ -434,6 +482,7 @@
           cop.speed *= 0.2;
           burstParticles(cop.x, cop.y, "#6ec5ff", 14);
           game.score += 120;
+          setStatus("Patrol disabled for a moment.", 1.5);
           game.bullets.splice(i, 1);
           break;
         }
@@ -469,6 +518,7 @@
     drawSky();
     drawGround(cam);
     drawWorldObjects(cam);
+    drawSpeedLines();
     drawHudArrow();
     drawMinimap();
   }
@@ -700,6 +750,22 @@
     ctx.restore();
   }
 
+  function drawSpeedLines() {
+    const intensity = clamp((Math.abs(game.player.speed) - 120) / 180, 0, 1);
+    if (intensity <= 0) return;
+    ctx.save();
+    ctx.globalAlpha = intensity * 0.28;
+    ctx.strokeStyle = "rgba(190, 230, 255, 0.7)";
+    for (let i = 0; i < 14; i += 1) {
+      const x = (i / 13) * VIEW.width;
+      ctx.beginPath();
+      ctx.moveTo(x, VIEW.height * 0.72);
+      ctx.lineTo(x + Math.sin(game.time * 4 + i) * 14, VIEW.height);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
   function drawMinimap() {
     mapCtx.fillStyle = "#0c1118";
     mapCtx.fillRect(0, 0, minimap.width, minimap.height);
@@ -749,19 +815,39 @@
   function toggleHelp(force) {
     game.helpVisible = typeof force === "boolean" ? force : !game.helpVisible;
     helpOverlay.classList.toggle("active", game.helpVisible);
+    if (game.helpVisible) {
+      setStatus("Help open. Close it to resume the run.", 0);
+    } else if (game.running) {
+      setStatus(game.cursorLocked ? "Back in the run. Keep moving." : "Click the road view to lock the mouse.", 1.5);
+    }
+  }
+
+  function requestPointerLock() {
+    if (document.pointerLockElement !== canvas && canvas.requestPointerLock) {
+      canvas.requestPointerLock();
+    }
+  }
+
+  function resetCar() {
+    game.player.x = 180;
+    game.player.y = 300;
+    game.player.angle = 0;
+    game.player.speed = 0;
+    setStatus("Car reset to the depot.", 1.6);
   }
 
   window.addEventListener("keydown", function (event) {
     if (["ArrowUp","ArrowDown","ArrowLeft","ArrowRight","KeyW","KeyA","KeyS","KeyD","Space","ShiftLeft","ShiftRight","KeyR","KeyF","KeyH"].includes(event.code)) event.preventDefault();
     KEYS[event.code] = true;
     if (event.code === "KeyR") {
-      game.player.x = 180;
-      game.player.y = 300;
-      game.player.angle = 0;
-      game.player.speed = 0;
+      resetCar();
     }
     if (event.code === "KeyF") fireEmp();
     if (event.code === "KeyH") toggleHelp();
+    if (event.code === "Escape" && document.pointerLockElement === canvas) {
+      document.exitPointerLock();
+      setStatus("Mouse released.", 1.2);
+    }
   });
 
   window.addEventListener("keyup", function (event) {
@@ -770,13 +856,36 @@
 
   window.addEventListener("resize", resizeCanvas);
   startButton.addEventListener("click", startGame);
+  startHelpButton.addEventListener("click", function () {
+    toggleHelp(true);
+  });
   restartButton.addEventListener("click", startGame);
+  gameOverHelpButton.addEventListener("click", function () {
+    toggleHelp(true);
+  });
   closeHelpButton.addEventListener("click", function () {
     toggleHelp(false);
+  });
+  canvas.addEventListener("click", function () {
+    requestPointerLock();
+  });
+  document.addEventListener("pointerlockchange", function () {
+    game.cursorLocked = document.pointerLockElement === canvas;
+    refreshLockUi();
+    if (game.cursorLocked) {
+      setStatus("Mouse locked. Use gentle movement to steer.", 2);
+    } else if (game.running) {
+      setStatus("Mouse free. Click the road view to lock again.", 0);
+    }
+  });
+  document.addEventListener("mousemove", function (event) {
+    if (!game.cursorLocked) return;
+    game.mouseSteer = clamp(game.mouseSteer + event.movementX * 0.009, -1.4, 1.4);
   });
 
   resizeCanvas();
   resetGame();
+  refreshLockUi();
   draw();
   requestAnimationFrame(frame);
 })();

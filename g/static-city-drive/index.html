@@ -13,7 +13,7 @@
           <div>
             <p class="eyebrow">Game 03</p>
             <h1>Static City Drive</h1>
-            <p class="sub">Static's GTA Simulator</p>
+            <p class="sub">Codex Night Shift Edition</p>
           </div>
         </div>
         <div class="stats">
@@ -22,10 +22,16 @@
           <div class="stat-card"><span>Time</span><strong id="timeValue">0.0s</strong></div>
           <div class="stat-card"><span>Wanted</span><strong id="wantedValue">0</strong></div>
           <div class="stat-card"><span>Hull</span><strong id="healthValue">3</strong></div>
+          <div class="stat-card accent"><span>Best</span><strong id="bestValue">0</strong></div>
         </div>
       </header>
       <section class="frame">
-        <canvas id="gameCanvas" width="1280" height="720" aria-label="Static City Drive 3D game"></canvas>
+        <div class="playfield">
+          <canvas id="gameCanvas" width="1280" height="720" aria-label="Static City Drive 3D game"></canvas>
+          <div class="reticle" aria-hidden="true"></div>
+          <div class="lock-chip" id="lockChip" aria-live="polite">Mouse free</div>
+          <div class="status-ribbon" id="statusRibbon">Click the road view to lock the mouse.</div>
+        </div>
         <aside class="side-panel">
           <div class="mini-panel">
             <h2>Mission</h2>
@@ -34,11 +40,18 @@
           </div>
           <div class="mini-panel">
             <h2>Controls</h2>
-            <p>WASD or arrows drive</p><p>Space brake</p><p>Shift boost</p><p>R reset car</p><p>F EMP pulse</p><p>H help</p>
+            <p>WASD or arrows drive</p>
+            <p>Mouse steer after pointer lock</p>
+            <p>Space brake</p>
+            <p>Shift boost</p>
+            <p>R reset car</p>
+            <p>F EMP pulse</p>
+            <p>H help</p>
           </div>
           <div class="mini-panel">
             <h2>Law System</h2>
             <p id="lawValue">Keep moving. No police yet.</p>
+            <p id="hintValue">Boost on straight roads. Brake before turns.</p>
           </div>
           <canvas id="minimap" width="220" height="220" aria-label="Minimap"></canvas>
         </aside>
@@ -48,7 +61,11 @@
             <h2>Package run through Static City.</h2>
             <p>This is an original city-driving game inspired by the open-world crime-driving genre. No GTA assets are used here. Everything is low-poly and browser-friendly.</p>
             <p>Collect 10 glowing packages, outrun the police, and use the EMP pulse when they crowd you.</p>
-            <button id="startButton" type="button">Start Run</button>
+            <p>Click into the road view to lock the mouse for smoother steering. Press Escape to release it.</p>
+            <div class="button-row">
+              <button id="startButton" type="button">Start Run</button>
+              <button id="startHelpButton" class="ghost" type="button">How To Play</button>
+            </div>
           </div>
         </div>
         <div class="overlay" id="gameOverOverlay" aria-hidden="true">
@@ -56,7 +73,10 @@
             <p class="eyebrow">Run Over</p>
             <h2 id="gameOverTitle">Busted</h2>
             <p id="gameOverMessage">You scored 0.</p>
-            <button id="restartButton" type="button">Retry</button>
+            <div class="button-row">
+              <button id="restartButton" type="button">Retry</button>
+              <button id="gameOverHelpButton" class="ghost" type="button">Help</button>
+            </div>
           </div>
         </div>
         <div class="overlay small" id="helpOverlay" aria-hidden="true">
@@ -66,6 +86,7 @@
             <p>Follow the arrow and minimap to the next package.</p>
             <p>After 3 packages, police units begin chasing you. Their contact costs hull.</p>
             <p>Boost for speed, brake into corners, and use F to fire an EMP pulse forward.</p>
+            <p>Click the game view to lock the mouse, then guide turns with mouse movement for finer control.</p>
             <button id="closeHelpButton" type="button">Close Help</button>
           </div>
         </div>
