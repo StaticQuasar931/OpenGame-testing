@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900">
+  <defs><linearGradient id="bg" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#09111c"/><stop offset="100%" stop-color="#04060a"/></linearGradient></defs>
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <g fill="none" stroke-width="4" opacity="0.7">
+    <path d="M380 760L520 180h560l140 580z" stroke="#78d4ff"/>
+    <path d="M470 690L580 270h440l110 420z" stroke="#ff69c4"/>
+    <path d="M560 620L640 340h320l80 280z" stroke="#78d4ff"/>
+  </g>
+  <polygon points="800,560 870,620 800,710 730,620" fill="#eef6ff"/>
+  <polygon points="540,420 620,500 540,580 460,500" fill="#ff69c4" opacity="0.9"/>
+  <circle cx="1060" cy="430" r="58" fill="#ffd46b"/>
+  <text x="120" y="150" fill="#eef6ff" font-family="Segoe UI, Arial, sans-serif" font-size="64" font-weight="700">NEON RIFT 3D</text>
+  <text x="120" y="212" fill="#96a8c7" font-family="Segoe UI, Arial, sans-serif" font-size="28">Tunnel flyer</text>
+</svg>

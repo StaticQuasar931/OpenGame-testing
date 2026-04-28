@@ -1,0 +1,92 @@
+/**
+ * Polished bright-neon dark arcade style
+ */
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  background-color: black;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+canvas {
+  width: 100vw;
+  height: 100vh;
+  display: block;
+}
+
+.title-card {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 20px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #44fcff, #6548f0);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+  text-align: center;
+}
+
+title-card h1 {
+  margin: 0;
+  font-size: 3em;
+  color: black;
+  text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #e60073, 0 0 40px #ffdc00;
+}
+
+.buttons {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.button {
+  padding: 15px 30px;
+  background-color: #44fcff;
+  border: none;
+  border-radius: 5px;
+  color: black;
+  font-size: 1.2em;
+  margin: 5px;
+  cursor: pointer;
+  text-shadow: 0 0 5px #fff, 0 0 10px #fff;
+}
+
+.button:hover {
+  background-color: #6548f0;
+}
+
+.overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  z-index: 9999;
+}
+
+.overlay.active {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.audio-toggle {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background-color: #44fcff;
+  color: black;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.audio-toggle:hover {
+  background-color: #6548f0;
+}

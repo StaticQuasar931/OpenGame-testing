@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Static's Trivia</title>
+  <style>
+    :root {
+      --bg: #130e2d;
+      --bg-soft: #20164a;
+      --card: rgba(27, 22, 60, 0.88);
+      --card-strong: rgba(18, 14, 42, 0.96);
+      --line: rgba(255, 255, 255, 0.12);
+      --text: #f8f7ff;
+      --muted: #c9c3f4;
+      --pink: #ff5ca8;
+      --cyan: #5fe7ff;
+      --lime: #b8ff66;
+      --gold: #ffd35c;
+      --danger: #ff6d6d;
+      --shadow: 0 24px 60px rgba(7, 6, 22, 0.45);
+      --radius: 24px;
+      --motion: 220ms ease;
+    }
+    body.high-contrast {
+      --bg: #050505;
+      --bg-soft: #111111;
+      --card: rgba(0, 0, 0, 0.96);
+      --card-strong: rgba(8, 8, 8, 0.98);
+      --line: rgba(255, 255, 255, 0.35);
+      --text: #ffffff;
+      --muted: #eaeaea;
+      --pink: #ff5f5f;
+      --cyan: #00ffff;
+      --lime: #caff00;
+      --gold: #ffe066;
+      --danger: #ff4040;
+      --shadow: 0 0 0 transparent;
+    }
+    body.reduced-motion * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(255, 92, 168, 0.2), transparent 30%),
+        radial-gradient(circle at top right, rgba(95, 231, 255, 0.18), transparent 32%),
+        linear-gradient(145deg, var(--bg), var(--bg-soft));
+    }
+    .page-glow {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 15% 20%, rgba(255, 92, 168, 0.15), transparent 22%),
+        radial-gradient(circle at 80% 18%, rgba(95, 231, 255, 0.18), transparent 24%),
+        radial-gradient(circle at 55% 80%, rgba(184, 255, 102, 0.1), transparent 20%);
+      opacity: 0.95;
+    }
+    .app { position: relative; max-width: 1200px; margin: 0 auto; padding: 20px; }
+    .topbar {
+      display: flex; justify-content: space-between; align-items: center; gap: 16px;
+      margin-bottom: 18px; padding: 16px 18px; background: rgba(14, 12, 34, 0.7);
+      border: 1px solid var(--line); border-radius: 18px; backdrop-filter: blur(12px); box-shadow: var(--shadow);
+    }
+    .brand h1 { margin: 0; font-size: clamp(1.6rem, 2vw, 2.2rem); letter-spacing: 0.02em; }
+    .brand p { margin: 6px 0 0; color: var(--muted); font-size: 0.96rem; }
+    .stats-strip { display: grid; grid-template-columns: repeat(3, minmax(120px, 1fr)); gap: 10px; min-width: min(100%, 420px); }
+    .pill {
+      padding: 10px 12px; border-radius: 14px; border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.04); text-align: center; font-size: 0.95rem;
+    }
+    .pill strong { display: block; font-size: 1.05rem; color: var(--gold); }
+    .screen { display: none; animation: fadeInUp 280ms ease; }
+    .screen.active { display: block; }
+    .hero-grid, .game-layout, .results-layout { display: grid; gap: 18px; }
+    .hero-grid { grid-template-columns: 1.25fr 0.95fr; align-items: start; }
+    .game-layout { grid-template-columns: 1fr 320px; align-items: start; }
+    .results-layout { grid-template-columns: 1.1fr 0.9fr; align-items: start; }
+    .card {
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+      padding: 22px; box-shadow: var(--shadow); backdrop-filter: blur(16px);
+    }
+    .hero-card { overflow: hidden; position: relative; background: linear-gradient(150deg, rgba(255, 92, 168, 0.16), rgba(95, 231, 255, 0.1)), var(--card-strong); }
+    .hero-card::after {
+      content: ""; position: absolute; inset: auto -60px -80px auto; width: 220px; height: 220px;
+      border-radius: 999px; background: radial-gradient(circle, rgba(255, 211, 92, 0.35), transparent 62%);
+      filter: blur(8px); pointer-events: none;
+    }
+    .hero-card h2, .settings-card h2, .question-card h2, .sidebar-card h2, .mini-game-card h2, .results-card h2, .review-card h2 {
+      margin-top: 0; margin-bottom: 12px; font-size: 1.55rem;
+    }
+    .hero-card p, .settings-card p, .question-meta, .small-note { color: var(--muted); line-height: 1.55; }
+    .feature-badges, .category-grid, .settings-grid, .choice-grid, .review-list, .memory-grid, .speed-grid { display: grid; gap: 12px; }
+    .feature-badges { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); margin: 18px 0; }
+    .badge { padding: 12px 14px; border-radius: 16px; border: 1px solid var(--line); background: rgba(255, 255, 255, 0.05); font-size: 0.95rem; }
+    .category-grid { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); margin-top: 18px; }
+    .category-btn, .toggle-chip, .answer-btn, .action-btn, .mini-btn, .memory-btn, .speed-btn {
+      appearance: none; border: 1px solid var(--line); border-radius: 18px; color: var(--text); cursor: pointer;
+      transition: transform var(--motion), border-color var(--motion), background var(--motion), box-shadow var(--motion); font: inherit;
+    }
+    .category-btn, .answer-btn, .action-btn, .mini-btn, .memory-btn, .speed-btn { background: rgba(255, 255, 255, 0.06); }
+    .category-btn { text-align: left; padding: 16px; min-height: 88px; }
+    .category-btn strong { display: block; margin-bottom: 8px; font-size: 1rem; }
+    .category-btn small { color: var(--muted); line-height: 1.4; }
+    .category-btn.selected, .toggle-chip.selected {
+      border-color: rgba(95, 231, 255, 0.8);
+      background: linear-gradient(135deg, rgba(95, 231, 255, 0.18), rgba(255, 92, 168, 0.18));
+      box-shadow: 0 12px 28px rgba(95, 231, 255, 0.18);
+    }
+    .category-btn:hover, .toggle-chip:hover, .answer-btn:hover, .action-btn:hover, .mini-btn:hover, .memory-btn:hover, .speed-btn:hover,
+    .category-btn:focus-visible, .toggle-chip:focus-visible, .answer-btn:focus-visible, .action-btn:focus-visible, .mini-btn:focus-visible, .memory-btn:focus-visible, .speed-btn:focus-visible {
+      transform: translateY(-2px); border-color: rgba(255, 255, 255, 0.55); outline: none;
+    }
+    .settings-grid { grid-template-columns: 1fr; }
+    .setting-group { padding: 14px; border-radius: 18px; border: 1px solid var(--line); background: rgba(255, 255, 255, 0.04); }
+    .setting-group h3 { margin: 0 0 10px; font-size: 1rem; }
+    .chip-row { display: flex; flex-wrap: wrap; gap: 10px; }
+    .toggle-chip { padding: 10px 14px; background: rgba(255, 255, 255, 0.04); }
+    .switch-row { display: flex; flex-wrap: wrap; gap: 10px; }
+    .switch-row label { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 14px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--line); cursor: pointer; }
+    .action-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 18px; }
+    .action-btn, .mini-btn { padding: 14px 18px; min-width: 140px; }
+    .action-btn.primary, .mini-btn.primary { background: linear-gradient(135deg, var(--pink), #7f6dff); border-color: transparent; box-shadow: 0 18px 34px rgba(255, 92, 168, 0.22); }
+    .action-btn.secondary { background: linear-gradient(135deg, rgba(95, 231, 255, 0.2), rgba(95, 231, 255, 0.06)); }
+    .action-btn.ghost { background: rgba(255, 255, 255, 0.03); }
+    .hud-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .hud-chip { padding: 14px; border-radius: 18px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--line); min-height: 76px; }
+    .hud-chip span { display: block; color: var(--muted); font-size: 0.88rem; margin-bottom: 6px; }
+    .hud-chip strong { font-size: 1.25rem; }
+    .hearts { color: var(--pink); letter-spacing: 0.12em; }
+    .progress { width: 100%; height: 12px; border-radius: 999px; overflow: hidden; background: rgba(255, 255, 255, 0.08); margin-bottom: 18px; border: 1px solid var(--line); }
+    .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--cyan), var(--pink), var(--gold)); transition: width var(--motion); }
+    .question-card h2 { line-height: 1.35; }
+    .question-meta { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; font-size: 0.95rem; }
+    .choice-grid { grid-template-columns: 1fr 1fr; }
+    .answer-btn { padding: 16px; min-height: 88px; text-align: left; line-height: 1.45; }
+    .answer-btn.correct { border-color: rgba(184, 255, 102, 0.9); background: rgba(184, 255, 102, 0.16); }
+    .answer-btn.wrong { border-color: rgba(255, 109, 109, 0.85); background: rgba(255, 109, 109, 0.18); }
+    .answer-btn.locked { pointer-events: none; opacity: 0.88; }
+    .feedback-box { margin-top: 16px; padding: 16px; border-radius: 18px; border: 1px solid var(--line); background: rgba(255, 255, 255, 0.05); min-height: 92px; }
+    .feedback-box strong { display: block; margin-bottom: 8px; font-size: 1.02rem; }
+    .sidebar-stack { display: grid; gap: 16px; }
+    .mini-preview {
+      min-height: 110px; border-radius: 20px;
+      background: radial-gradient(circle at 20% 20%, rgba(95, 231, 255, 0.18), transparent 22%), radial-gradient(circle at 85% 75%, rgba(255, 92, 168, 0.22), transparent 24%), rgba(255, 255, 255, 0.04);
+      display: grid; place-items: center; text-align: center; font-size: 1rem; color: var(--muted); padding: 14px; border: 1px dashed rgba(255, 255, 255, 0.14);
+    }
+    .mini-game-card { text-align: center; }
+    .mini-stage { margin-top: 18px; min-height: 250px; display: grid; place-items: center; }
+    .reaction-light {
+      width: min(240px, 70vw); height: min(240px, 70vw); border-radius: 28px; display: grid; place-items: center;
+      font-size: 1.2rem; border: 2px solid var(--line); background: rgba(255, 255, 255, 0.05); box-shadow: inset 0 0 40px rgba(255, 255, 255, 0.03);
+    }
+    .reaction-light.ready { background: rgba(184, 255, 102, 0.2); border-color: rgba(184, 255, 102, 0.8); box-shadow: 0 0 28px rgba(184, 255, 102, 0.34); }
+    .memory-grid { grid-template-columns: repeat(2, minmax(120px, 1fr)); width: min(420px, 100%); }
+    .memory-btn { padding: 26px 16px; min-height: 96px; font-size: 1.15rem; }
+    .memory-btn.flash { transform: scale(1.04); box-shadow: 0 0 28px rgba(255, 255, 255, 0.28); }
+    .speed-grid { grid-template-columns: repeat(2, minmax(160px, 1fr)); width: min(420px, 100%); }
+    .speed-btn { padding: 22px 18px; min-height: 112px; font-size: 1.08rem; }
+    .results-banner { padding: 18px; border-radius: 20px; background: linear-gradient(135deg, rgba(255, 92, 168, 0.18), rgba(95, 231, 255, 0.16)); border: 1px solid var(--line); margin-bottom: 16px; }
+    .results-stat-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 14px; }
+    .results-stat-grid .pill { text-align: left; }
+    .review-list { margin-top: 14px; }
+    .review-item { padding: 16px; border-radius: 18px; border: 1px solid var(--line); background: rgba(255, 255, 255, 0.04); }
+    .review-item h4 { margin: 0 0 8px; }
+    .review-item p { margin: 6px 0; color: var(--muted); line-height: 1.45; }
+    .tag-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .tag { padding: 6px 10px; border-radius: 999px; background: rgba(255, 255, 255, 0.06); border: 1px solid var(--line); font-size: 0.84rem; }
+    .tag.good { color: var(--lime); border-color: rgba(184, 255, 102, 0.4); }
+    .tag.bad { color: #ffb3b3; border-color: rgba(255, 109, 109, 0.4); }
+    .hidden { display: none !important; }
+    .small-note strong { color: var(--gold); }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    @media (max-width: 980px) {
+      .hero-grid, .game-layout, .results-layout { grid-template-columns: 1fr; }
+      .hud-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 720px) {
+      .topbar { flex-direction: column; align-items: stretch; }
+      .stats-strip, .choice-grid, .speed-grid, .memory-grid { grid-template-columns: 1fr; }
+      .hud-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-glow"></div>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <h1>Static's Trivia</h1>
+        <p>Real-world facts, mini-games, combo streaks, and teenage chaos in a browser tab.</p>
+      </div>
+      <div class="stats-strip" aria-label="Saved profile stats">
+        <div class="pill">High Score<strong id="profileHighScore">0</strong></div>
+        <div class="pill">Fav Category<strong id="profileFavorite">Mixed Mode</strong></div>
+        <div class="pill">Games Played<strong id="profileGamesPlayed">0</strong></div>
+      </div>
+    </header>
+    <main>
+      <section id="homeScreen" class="screen active">
+        <div class="hero-grid">
+          <article class="card hero-card">
+            <h2>Pick Your Brain Rot Category</h2>
+            <p>Choose a lane or hit mixed mode if you want the whole chaotic buffet. Questions stay school-safe, explanations teach something real, and mini-games keep the pace spicy.</p>
+            <div class="feature-badges">
+              <div class="badge">🎵 Pop culture, gaming, memes, sports, movies, school survival, food, and wild world facts.</div>
+              <div class="badge">⚡ Streaks, combo bonuses, hearts, and timer pressure.</div>
+              <div class="badge">🧠 Three mini-games between trivia rounds that can save or sink your score.</div>
+            </div>
+            <div class="category-grid" id="categoryGrid" aria-label="Choose a trivia category"></div>
+            <div class="action-row">
+              <button id="startGameBtn" class="action-btn primary">Start Trivia Run</button>
+              <button id="openSettingsBtn" class="action-btn secondary">Settings</button>
+              <button id="openReviewBtn" class="action-btn ghost">Review Last Run</button>
+            </div>
+          </article>
+          <aside class="card settings-card" id="settingsPanel">
+            <h2>Settings</h2>
+            <p>Make it chill, fair, or absolutely rude.</p>
+            <div class="settings-grid">
+              <div class="setting-group">
+                <h3>Difficulty</h3>
+                <div class="chip-row" id="difficultyChips"></div>
+              </div>
+              <div class="setting-group">
+                <h3>Options</h3>
+                <div class="switch-row">
+                  <label><input type="checkbox" id="timerToggle" checked> Question timer</label>
+                  <label><input type="checkbox" id="soundToggle" checked> Sound effects</label>
+                  <label><input type="checkbox" id="contrastToggle"> High contrast</label>
+                  <label><input type="checkbox" id="motionToggle"> Reduced motion</label>
+                </div>
+              </div>
+              <div class="setting-group">
+                <h3>How It Works</h3>
+                <p class="small-note">Use keys <strong>1-4</strong> to answer fast. Use <strong>Enter</strong> for the next step. The mini-games show up between trivia rounds and directly change your score.</p>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+      <section id="gameScreen" class="screen">
+        <div class="hud-grid">
+          <div class="hud-chip"><span>Category</span><strong id="hudCategory">Mixed Mode</strong></div>
+          <div class="hud-chip"><span>Score</span><strong id="hudScore">0</strong></div>
+          <div class="hud-chip"><span>Streak</span><strong id="hudStreak">0</strong></div>
+          <div class="hud-chip"><span>Lives</span><strong id="hudLives" class="hearts">❤❤❤</strong></div>
+          <div class="hud-chip"><span>Question</span><strong id="hudProgress">1 / 10</strong></div>
+          <div class="hud-chip"><span>Timer</span><strong id="hudTimer">--</strong></div>
+          <div class="hud-chip"><span>Difficulty</span><strong id="hudDifficulty">Normal</strong></div>
+          <div class="hud-chip"><span>Combo Bonus</span><strong id="hudCombo">x1.0</strong></div>
+        </div>
+        <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+        <div class="game-layout">
+          <article class="card question-card">
+            <div class="question-meta">
+              <span id="questionCategory">Category</span>
+              <span id="questionDifficulty">Difficulty</span>
+            </div>
+            <h2 id="questionText">Question text goes here.</h2>
+            <div class="choice-grid" id="answersContainer"></div>
+            <div class="feedback-box" id="feedbackBox">
+              <strong>Waiting for your genius</strong>
+              <div id="feedbackText">Choose an answer to see if your brain cooked or not.</div>
+            </div>
+            <div class="action-row">
+              <button id="nextQuestionBtn" class="action-btn primary hidden">Next Question</button>
+              <button id="pauseRunBtn" class="action-btn ghost">Pause</button>
+              <button id="quitRunBtn" class="action-btn ghost">Quit Run</button>
+            </div>
+          </article>
+          <aside class="sidebar-stack">
+            <article class="card sidebar-card">
+              <h2>Mini-Game Queue</h2>
+              <div class="mini-preview" id="miniPreview">First mini-game unlocks after question 4.</div>
+            </article>
+            <article class="card sidebar-card">
+              <h2>Keyboard Help</h2>
+              <p class="small-note">Tap <strong>1, 2, 3, 4</strong> for answers. Tap <strong>Enter</strong> for next. Tap <strong>Escape</strong> to return home after a run.</p>
+            </article>
+          </aside>
+        </div>
+      </section>
+      <section id="miniGameScreen" class="screen">
+        <article class="card mini-game-card">
+          <h2 id="miniGameTitle">Mini-Game Time</h2>
+          <p id="miniGameSubtitle" class="small-note">Do this well and your score says thank you.</p>
+          <div class="mini-stage" id="miniGameStage"></div>
+          <div class="action-row">
+            <button id="miniContinueBtn" class="mini-btn primary hidden">Back to Trivia</button>
+          </div>
+        </article>
+      </section>
+      <section id="resultsScreen" class="screen">
+        <div class="results-layout">
+          <article class="card results-card">
+            <div class="results-banner">
+              <h2 id="resultsHeadline">Run complete</h2>
+              <p id="resultsSummary">You survived the trivia storm.</p>
+            </div>
+            <div class="results-stat-grid">
+              <div class="pill">Final Score<strong id="resultsScore">0</strong></div>
+              <div class="pill">Best Streak<strong id="resultsStreak">0</strong></div>
+              <div class="pill">Correct Answers<strong id="resultsCorrect">0</strong></div>
+              <div class="pill">Mini-Game Bonus<strong id="resultsMiniBonus">0</strong></div>
+            </div>
+            <div class="action-row">
+              <button id="playAgainBtn" class="action-btn primary">Play Again</button>
+              <button id="seeReviewBtn" class="action-btn secondary">Question Review</button>
+              <button id="backHomeBtn" class="action-btn ghost">Back Home</button>
+            </div>
+          </article>
+          <aside class="card review-card">
+            <h2>Profile Snapshot</h2>
+            <p class="small-note" id="profileSummary">Your local save tracks high score, favorite category, and total games played.</p>
+            <div class="tag-row">
+              <span class="tag">Local save only</span>
+              <span class="tag">No external APIs</span>
+              <span class="tag">One-file build</span>
+            </div>
+          </aside>
+        </div>
+      </section>
+      <section id="reviewScreen" class="screen">
+        <article class="card review-card">
+          <h2>Question Review</h2>
+          <p class="small-note">Every answer from your last run is listed here so you can actually learn something instead of just speed-running the dopamine.</p>
+          <div id="reviewList" class="review-list"></div>
+          <div class="action-row"><button id="reviewBackBtn" class="action-btn primary">Back</button></div>
+        </article>
+      </section>
+    </main>
+  </div>
+  <script>
+    const STORAGE_KEY = "statics-trivia-save-v1";
+    const CATEGORY_INFO = [
+      { key: "Music and Pop Culture", icon: "🎵", blurb: "Albums, artists, fandoms, and big stage energy." },
+      { key: "Gaming", icon: "🎮", blurb: "Consoles, iconic characters, and game mechanics." },
+      { key: "Internet and Memes", icon: "🌐", blurb: "Online culture, shortcuts, and meme history." },
+      { key: "Sports", icon: "🏀", blurb: "Big leagues, famous trophies, and sports basics." },
+      { key: "Movies and TV", icon: "🎬", blurb: "Blockbusters, shows, quotes, and animation." },
+      { key: "School Survival", icon: "📚", blurb: "Useful classroom facts without the boring worksheet vibe." },
+      { key: "Food and Trends", icon: "🍟", blurb: "Snacks, drinks, cooking basics, and trend foods." },
+      { key: "Random World Facts", icon: "🌍", blurb: "Geography, animals, science, and weirdly useful knowledge." },
+      { key: "Mixed Mode", icon: "✨", blurb: "A little bit of everything for the bravest brains." }
+    ];
+
+    const DIFFICULTY_CONFIG = {
+      chill: { label: "Chill", time: 20, lives: 4, scoreMultiplier: 1, memoryLength: 3 },
+      normal: { label: "Normal", time: 14, lives: 3, scoreMultiplier: 1.2, memoryLength: 4 },
+      chaos: { label: "Chaos", time: 9, lives: 2, scoreMultiplier: 1.5, memoryLength: 5 }
+    };
+
+    const SPEED_FACTS = [
+      { prompt: "Which planet is called the Red Planet?", left: "Mars", right: "Venus", correct: "Mars", explanation: "Mars gets its nickname from iron-rich dust that makes it look reddish." },
+      { prompt: "Which one is the bigger cat?", left: "Cheetah", right: "Tiger", correct: "Tiger", explanation: "Tigers are much larger than cheetahs by weight and length." },
+      { prompt: "Which one is a search engine?", left: "Chrome", right: "Google", correct: "Google", explanation: "Chrome is a browser. Google is a search engine and company." },
+      { prompt: "Which one is measured in hertz?", left: "Frequency", right: "Temperature", correct: "Frequency", explanation: "Hertz measures how often something repeats per second." },
+      { prompt: "Which one came first?", left: "The moon landing", right: "The first iPhone", correct: "The moon landing", explanation: "Apollo 11 landed on the moon in 1969. The first iPhone launched in 2007." },
+      { prompt: "Which one is a mammal?", left: "Dolphin", right: "Shark", correct: "Dolphin", explanation: "Dolphins breathe air and nurse their young, which makes them mammals." }
+    ];
+
+    const MEMORY_COLORS = [
+      { name: "Pink", color: "#ff5ca8" },
+      { name: "Cyan", color: "#5fe7ff" },
+      { name: "Lime", color: "#b8ff66" },
+      { name: "Gold", color: "#ffd35c" }
+    ];
+
+    // Review this question bank before publishing if more questions are added.
+    // Keep facts stable and verifiable, especially for pop culture and sports.
+    const QUESTION_BANK = [
+      { category: "Music and Pop Culture", prompt: "Which artist released the song \"bad guy\"?", choices: ["Billie Eilish", "Olivia Rodrigo", "Dua Lipa", "Sabrina Carpenter"], answer: "Billie Eilish", explanation: "\"bad guy\" was Billie Eilish's breakout global hit from her debut studio album." },
+      { category: "Music and Pop Culture", prompt: "Harry Styles first became famous as part of which group?", choices: ["Why Don't We", "One Direction", "5 Seconds of Summer", "The Jonas Brothers"], answer: "One Direction", explanation: "Harry Styles rose to fame in One Direction after the group formed on The X Factor." },
+      { category: "Music and Pop Culture", prompt: "Fans of Taylor Swift are commonly called what?", choices: ["Directioners", "Beliebers", "Swifties", "Arianators"], answer: "Swifties", explanation: "Swifties is the long-running fan nickname for Taylor Swift supporters." },
+      { category: "Music and Pop Culture", prompt: "Which K-pop group released the English-language hit \"Dynamite\"?", choices: ["BLACKPINK", "BTS", "EXO", "TWICE"], answer: "BTS", explanation: "\"Dynamite\" became one of BTS's biggest worldwide hits." },
+      { category: "Music and Pop Culture", prompt: "Which instrument is famous for having 88 keys?", choices: ["Organ", "Piano", "Harpsichord", "Accordion"], answer: "Piano", explanation: "A standard modern piano has 88 keys: 52 white and 36 black." },
+      { category: "Music and Pop Culture", prompt: "Which singer played Hannah Montana on Disney Channel?", choices: ["Selena Gomez", "Demi Lovato", "Miley Cyrus", "Ariana Grande"], answer: "Miley Cyrus", explanation: "Miley Cyrus starred as both Miley Stewart and Hannah Montana." },
+      { category: "Music and Pop Culture", prompt: "Which festival in California is famous for music and giant art installations?", choices: ["Glastonbury", "Coachella", "Lollapalooza", "SXSW"], answer: "Coachella", explanation: "Coachella is held in Indio, California and is known for music and large visual art pieces." },
+      { category: "Music and Pop Culture", prompt: "Which artist released the album \"Future Nostalgia\"?", choices: ["Dua Lipa", "Doja Cat", "Lorde", "Rihanna"], answer: "Dua Lipa", explanation: "\"Future Nostalgia\" is Dua Lipa's disco-pop inspired 2020 album." },
+      { category: "Music and Pop Culture", prompt: "What does EP usually stand for in music releases?", choices: ["Extended Play", "Extra Performance", "Electronic Production", "Expanded Playlist"], answer: "Extended Play", explanation: "EP stands for Extended Play, which is typically shorter than an album but longer than a single." },
+      { category: "Music and Pop Culture", prompt: "Which singer starred in the movie and soundtrack for \"The Bodyguard\"?", choices: ["Whitney Houston", "Mariah Carey", "Janet Jackson", "Celine Dion"], answer: "Whitney Houston", explanation: "Whitney Houston starred in The Bodyguard and sang the huge hit \"I Will Always Love You.\"" },
+
+      { category: "Gaming", prompt: "Which company created Mario and The Legend of Zelda?", choices: ["Sega", "Sony", "Nintendo", "Capcom"], answer: "Nintendo", explanation: "Mario and The Legend of Zelda are two of Nintendo's most iconic franchises." },
+      { category: "Gaming", prompt: "What hostile mob is known for exploding in Minecraft?", choices: ["Zombie", "Enderman", "Creeper", "Skeleton"], answer: "Creeper", explanation: "Creepers are the exploding green mobs that players instantly recognize in Minecraft." },
+      { category: "Gaming", prompt: "Which company makes the PlayStation 5?", choices: ["Microsoft", "Valve", "Sony", "EA"], answer: "Sony", explanation: "The PlayStation brand, including the PS5, is made by Sony." },
+      { category: "Gaming", prompt: "Fortnite became famous mainly as what type of game mode?", choices: ["Puzzle", "Battle royale", "Racing", "MMORPG"], answer: "Battle royale", explanation: "Fortnite exploded in popularity through its battle royale mode." },
+      { category: "Gaming", prompt: "The Triforce is a symbol from which game series?", choices: ["Final Fantasy", "Metroid", "The Legend of Zelda", "Kingdom Hearts"], answer: "The Legend of Zelda", explanation: "The Triforce is a legendary symbol in The Legend of Zelda series." },
+      { category: "Gaming", prompt: "What currency is used in Roblox?", choices: ["Minecoins", "V-Bucks", "Robux", "Rings"], answer: "Robux", explanation: "Robux is the in-platform currency for Roblox." },
+      { category: "Gaming", prompt: "Which blue character is known for running fast and collecting rings?", choices: ["Crash Bandicoot", "Sonic the Hedgehog", "Mega Man", "Kirby"], answer: "Sonic the Hedgehog", explanation: "Sonic is Sega's famous speed-focused mascot." },
+      { category: "Gaming", prompt: "What are the block shapes in Tetris commonly called?", choices: ["Hexominoes", "Tetrominoes", "Dominoes", "Polycubes"], answer: "Tetrominoes", explanation: "Tetris pieces are tetrominoes because each shape is made from four squares." },
+      { category: "Gaming", prompt: "In Among Us, what role tries to secretly eliminate the crew?", choices: ["Engineer", "Ghost", "Impostor", "Scientist"], answer: "Impostor", explanation: "The impostor sabotages and eliminates crew members while pretending to be part of the team." },
+      { category: "Gaming", prompt: "Which game series features Master Chief?", choices: ["Halo", "Destiny", "Gears of War", "Mass Effect"], answer: "Halo", explanation: "Master Chief is the iconic super-soldier protagonist of the Halo series." },
+
+      { category: "Internet and Memes", prompt: "What does GIF stand for?", choices: ["Graphic Internet File", "Graphics Interchange Format", "Global Image Format", "Group Interface Frame"], answer: "Graphics Interchange Format", explanation: "GIF stands for Graphics Interchange Format, a long-running image format used online." },
+      { category: "Internet and Memes", prompt: "A 404 error usually means what?", choices: ["Battery low", "Page not found", "Too many tabs open", "Slow internet"], answer: "Page not found", explanation: "A 404 error means the web page could not be found on the server." },
+      { category: "Internet and Memes", prompt: "The original Doge meme features what breed of dog?", choices: ["Golden Retriever", "Pug", "Shiba Inu", "Border Collie"], answer: "Shiba Inu", explanation: "The Doge meme became famous with images of a Shiba Inu." },
+      { category: "Internet and Memes", prompt: "Rickrolling usually tricks someone into hearing which song?", choices: ["Take On Me", "Never Gonna Give You Up", "Sandstorm", "Numb"], answer: "Never Gonna Give You Up", explanation: "Rickrolling sends people to Rick Astley's \"Never Gonna Give You Up.\"" },
+      { category: "Internet and Memes", prompt: "Which symbol is used at the start of a hashtag?", choices: ["@", "#", "&", "%"], answer: "#", explanation: "Hashtags begin with the number sign, also called a hash or pound sign." },
+      { category: "Internet and Memes", prompt: "CAPTCHA systems are mainly used to do what?", choices: ["Boost Wi-Fi speed", "Tell humans from bots", "Fix websites", "Hide passwords"], answer: "Tell humans from bots", explanation: "CAPTCHA prompts are designed to help websites spot automated bots." },
+      { category: "Internet and Memes", prompt: "What does Ctrl+Z usually do on a computer?", choices: ["Zoom in", "Undo", "Close tab", "Save"], answer: "Undo", explanation: "Ctrl+Z is the standard undo shortcut in many programs." },
+      { category: "Internet and Memes", prompt: "The \"This is fine\" meme shows what animal calmly sitting in a burning room?", choices: ["Cat", "Dog", "Rabbit", "Fox"], answer: "Dog", explanation: "The \"This is fine\" meme is based on a comic showing a dog sitting calmly while everything burns." },
+      { category: "Internet and Memes", prompt: "What does URL stand for?", choices: ["Universal Record Link", "Uniform Resource Locator", "User Routing List", "Unified Resource Layer"], answer: "Uniform Resource Locator", explanation: "A URL is the address used to locate something on the web." },
+      { category: "Internet and Memes", prompt: "Which website is best known for upvotes and downvotes in community discussions?", choices: ["Pinterest", "Reddit", "Tumblr", "Flickr"], answer: "Reddit", explanation: "Reddit uses upvotes and downvotes to sort posts and comments." },
+
+      { category: "Sports", prompt: "The NBA is associated with which sport?", choices: ["Baseball", "Basketball", "Soccer", "Hockey"], answer: "Basketball", explanation: "NBA stands for National Basketball Association." },
+      { category: "Sports", prompt: "Wimbledon is a famous tournament in which sport?", choices: ["Golf", "Tennis", "Cricket", "Swimming"], answer: "Tennis", explanation: "Wimbledon is one of tennis's four Grand Slam tournaments." },
+      { category: "Sports", prompt: "How often is the FIFA World Cup held?", choices: ["Every 2 years", "Every 3 years", "Every 4 years", "Every 5 years"], answer: "Every 4 years", explanation: "The men's FIFA World Cup is traditionally held every four years." },
+      { category: "Sports", prompt: "In baseball, what is it called when a batter circles all the bases on one hit?", choices: ["Grand slam", "Home run", "Double play", "Strikeout"], answer: "Home run", explanation: "A home run lets the batter score by making it around the bases, often by hitting over the fence." },
+      { category: "Sports", prompt: "How many points is a touchdown worth in American football before the extra point attempt?", choices: ["3", "5", "6", "7"], answer: "6", explanation: "A touchdown is worth 6 points before any extra point or two-point attempt." },
+      { category: "Sports", prompt: "How many rings are on the Olympic symbol?", choices: ["4", "5", "6", "7"], answer: "5", explanation: "The Olympic symbol has five rings representing the traditional inhabited continents." },
+      { category: "Sports", prompt: "The Stanley Cup belongs to which sport?", choices: ["Hockey", "Basketball", "Rugby", "Baseball"], answer: "Hockey", explanation: "The Stanley Cup is awarded to the NHL champion in ice hockey." },
+      { category: "Sports", prompt: "Lionel Messi won the 2022 men's FIFA World Cup while playing for which country?", choices: ["Spain", "Argentina", "Brazil", "Portugal"], answer: "Argentina", explanation: "Messi captained Argentina to the 2022 World Cup title." },
+      { category: "Sports", prompt: "In volleyball, how many team touches are allowed before the ball must go over the net?", choices: ["2", "3", "4", "5"], answer: "3", explanation: "A team gets up to three touches to return the ball, not counting a block in many rule sets." },
+      { category: "Sports", prompt: "Usain Bolt is most famous for dominating which event?", choices: ["Marathon", "High jump", "100-meter sprint", "Pole vault"], answer: "100-meter sprint", explanation: "Usain Bolt is best known for the 100-meter sprint, where he set a world record." },
+
+      { category: "Movies and TV", prompt: "Grogu is the real name of the character many people call what?", choices: ["Baby Groot", "Baby Yoda", "Tiny Jedi", "Mini Solo"], answer: "Baby Yoda", explanation: "Grogu from The Mandalorian became widely known online as Baby Yoda." },
+      { category: "Movies and TV", prompt: "Which animated movie features the song \"Let It Go\"?", choices: ["Tangled", "Frozen", "Moana", "Encanto"], answer: "Frozen", explanation: "\"Let It Go\" became the signature song of Disney's Frozen." },
+      { category: "Movies and TV", prompt: "Which sitcom features Ross, Rachel, Monica, Chandler, Joey, and Phoebe?", choices: ["Friends", "New Girl", "How I Met Your Mother", "The Office"], answer: "Friends", explanation: "Those six characters are the central friend group in Friends." },
+      { category: "Movies and TV", prompt: "What is the alternate dimension in Stranger Things called?", choices: ["The Nether", "The Reverse", "The Upside Down", "The Rift"], answer: "The Upside Down", explanation: "Stranger Things calls its creepy parallel dimension the Upside Down." },
+      { category: "Movies and TV", prompt: "Which actor plays Peter Parker in the Marvel Cinematic Universe Spider-Man films?", choices: ["Tom Holland", "Andrew Garfield", "Tobey Maguire", "Timothée Chalamet"], answer: "Tom Holland", explanation: "Tom Holland plays Spider-Man in the MCU films." },
+      { category: "Movies and TV", prompt: "Wakanda is the fictional homeland of which superhero?", choices: ["Blade", "Black Panther", "Falcon", "Doctor Strange"], answer: "Black Panther", explanation: "Wakanda is the fictional African nation ruled by Black Panther." },
+      { category: "Movies and TV", prompt: "Which movie includes the quote, \"I'm gonna make him an offer he can't refuse\"?", choices: ["Scarface", "The Godfather", "Goodfellas", "The Dark Knight"], answer: "The Godfather", explanation: "That famous line comes from The Godfather." },
+      { category: "Movies and TV", prompt: "Pixar's hopping desk lamp mascot is called what?", choices: ["Luxo Jr.", "Buzz Jr.", "Lampy", "Spark"], answer: "Luxo Jr.", explanation: "Luxo Jr. is the small lamp featured in Pixar's logo animation." },
+      { category: "Movies and TV", prompt: "In Harry Potter, what is the name of the wizarding school?", choices: ["Beauxbatons", "Durmstrang", "Hogwarts", "Ilvermorny"], answer: "Hogwarts", explanation: "Hogwarts School of Witchcraft and Wizardry is where Harry attends school." },
+      { category: "Movies and TV", prompt: "Which movie franchise takes place on the moon Pandora?", choices: ["Dune", "Star Wars", "Avatar", "Guardians of the Galaxy"], answer: "Avatar", explanation: "James Cameron's Avatar series is set largely on Pandora, a moon of Polyphemus." },
+
+      { category: "School Survival", prompt: "What is the chemical formula for water?", choices: ["CO2", "H2O", "NaCl", "O2"], answer: "H2O", explanation: "Water is made of two hydrogen atoms and one oxygen atom, so its formula is H2O." },
+      { category: "School Survival", prompt: "An angle measuring 90 degrees is called what?", choices: ["Acute", "Obtuse", "Straight", "Right angle"], answer: "Right angle", explanation: "A right angle measures exactly 90 degrees." },
+      { category: "School Survival", prompt: "Who wrote Romeo and Juliet?", choices: ["Jane Austen", "William Shakespeare", "Charles Dickens", "Mark Twain"], answer: "William Shakespeare", explanation: "Romeo and Juliet is one of Shakespeare's most famous plays." },
+      { category: "School Survival", prompt: "Which planet is closest to the Sun?", choices: ["Venus", "Earth", "Mercury", "Mars"], answer: "Mercury", explanation: "Mercury is the closest planet to the Sun in our solar system." },
+      { category: "School Survival", prompt: "Plants mainly absorb which gas from the air for photosynthesis?", choices: ["Oxygen", "Nitrogen", "Carbon dioxide", "Helium"], answer: "Carbon dioxide", explanation: "Plants use carbon dioxide in photosynthesis to help make sugars." },
+      { category: "School Survival", prompt: "What is the sum of the interior angles of a triangle?", choices: ["90 degrees", "180 degrees", "270 degrees", "360 degrees"], answer: "180 degrees", explanation: "The interior angles of a triangle always add up to 180 degrees in Euclidean geometry." },
+      { category: "School Survival", prompt: "Who is widely credited with inventing the World Wide Web?", choices: ["Steve Jobs", "Bill Gates", "Tim Berners-Lee", "Alan Turing"], answer: "Tim Berners-Lee", explanation: "Tim Berners-Lee created the World Wide Web while working at CERN." },
+      { category: "School Survival", prompt: "What is the first word of the U.S. Constitution?", choices: ["Freedom", "Congress", "We", "People"], answer: "We", explanation: "The Constitution famously begins with the words \"We the People.\"" },
+      { category: "School Survival", prompt: "What do you call a word that means the opposite of another word?", choices: ["Synonym", "Antonym", "Homonym", "Acronym"], answer: "Antonym", explanation: "An antonym is a word with the opposite meaning of another word." },
+      { category: "School Survival", prompt: "Which organ pumps blood through the human body?", choices: ["Lungs", "Brain", "Heart", "Liver"], answer: "Heart", explanation: "The heart pumps blood through the circulatory system." },
+
+      { category: "Food and Trends", prompt: "What is the main ingredient in guacamole?", choices: ["Avocado", "Cucumber", "Spinach", "Zucchini"], answer: "Avocado", explanation: "Guacamole is traditionally made with mashed avocados plus seasonings." },
+      { category: "Food and Trends", prompt: "Bubble tea is famous for having what in the cup?", choices: ["Popcorn", "Tapioca pearls", "Rice cakes", "Coffee beans"], answer: "Tapioca pearls", explanation: "Classic bubble tea often includes chewy tapioca pearls." },
+      { category: "Food and Trends", prompt: "Sushi rice is traditionally seasoned with what?", choices: ["Soy sauce", "Vinegar", "Olive oil", "Lemon juice"], answer: "Vinegar", explanation: "Sushi rice is seasoned with vinegar, usually with sugar and salt too." },
+      { category: "Food and Trends", prompt: "Which country is especially famous for croissants?", choices: ["France", "Italy", "Mexico", "Japan"], answer: "France", explanation: "Croissants are strongly associated with French baking culture." },
+      { category: "Food and Trends", prompt: "Chocolate comes from the seeds of which plant?", choices: ["Vanilla orchid", "Coffee plant", "Cacao tree", "Sugar cane"], answer: "Cacao tree", explanation: "Chocolate begins with cacao beans, which are the seeds of the cacao tree." },
+      { category: "Food and Trends", prompt: "Kimchi is a traditional dish strongly associated with which country?", choices: ["Thailand", "Korea", "India", "Spain"], answer: "Korea", explanation: "Kimchi is a classic Korean side dish made from fermented vegetables." },
+      { category: "Food and Trends", prompt: "What stimulant is naturally found in coffee and many teas?", choices: ["Protein", "Caffeine", "Collagen", "Vitamin C"], answer: "Caffeine", explanation: "Caffeine is a natural stimulant commonly found in coffee and tea." },
+      { category: "Food and Trends", prompt: "Maple syrup is made from the sap of what kind of tree?", choices: ["Oak", "Pine", "Maple", "Cedar"], answer: "Maple", explanation: "Maple syrup is boiled down from sap collected from maple trees." },
+      { category: "Food and Trends", prompt: "Nachos are often topped with melted what?", choices: ["Cheese", "Chocolate", "Jam", "Cream"], answer: "Cheese", explanation: "Nachos are commonly served with melted cheese and other toppings." },
+      { category: "Food and Trends", prompt: "Hummus is traditionally made from what legume?", choices: ["Peanuts", "Chickpeas", "Lentils", "Black beans"], answer: "Chickpeas", explanation: "Classic hummus is made mainly from chickpeas, tahini, lemon juice, and garlic." },
+
+      { category: "Random World Facts", prompt: "What is the largest ocean on Earth?", choices: ["Atlantic Ocean", "Indian Ocean", "Pacific Ocean", "Arctic Ocean"], answer: "Pacific Ocean", explanation: "The Pacific Ocean is the largest and deepest ocean on Earth." },
+      { category: "Random World Facts", prompt: "The Great Pyramid of Giza is located in which country?", choices: ["Greece", "Egypt", "Turkey", "Jordan"], answer: "Egypt", explanation: "The Great Pyramid of Giza stands near Cairo in Egypt." },
+      { category: "Random World Facts", prompt: "What is the tallest land animal?", choices: ["Elephant", "Camel", "Giraffe", "Moose"], answer: "Giraffe", explanation: "Giraffes are the tallest land animals thanks to their long necks and legs." },
+      { category: "Random World Facts", prompt: "What is the capital city of Japan?", choices: ["Kyoto", "Seoul", "Tokyo", "Osaka"], answer: "Tokyo", explanation: "Tokyo is the capital and largest city of Japan." },
+      { category: "Random World Facts", prompt: "Bees communicate the location of food using what famous movement?", choices: ["Moonwalk", "Circle spin", "Waggle dance", "Wing clap"], answer: "Waggle dance", explanation: "Honey bees use the waggle dance to communicate direction and distance to food sources." },
+      { category: "Random World Facts", prompt: "Most of Earth's atmosphere is made of which gas?", choices: ["Oxygen", "Nitrogen", "Carbon dioxide", "Hydrogen"], answer: "Nitrogen", explanation: "Earth's atmosphere is mostly nitrogen, at about 78 percent." },
+      { category: "Random World Facts", prompt: "The Great Barrier Reef is off the coast of which country?", choices: ["Australia", "South Africa", "Brazil", "New Zealand"], answer: "Australia", explanation: "The Great Barrier Reef lies off the northeastern coast of Australia." },
+      { category: "Random World Facts", prompt: "What is the Sahara?", choices: ["A mountain range", "A desert", "A river", "A rainforest"], answer: "A desert", explanation: "The Sahara is the largest hot desert in the world." },
+      { category: "Random World Facts", prompt: "Which continent is the smallest by land area?", choices: ["Europe", "Antarctica", "Australia", "South America"], answer: "Australia", explanation: "Australia is the smallest continent by land area." },
+      { category: "Random World Facts", prompt: "A light-year measures what?", choices: ["Brightness", "Weight", "Distance", "Time"], answer: "Distance", explanation: "A light-year is the distance light travels in one year." }
+    ];
+
+    const state = {
+      category: "Mixed Mode",
+      difficulty: "normal",
+      timerEnabled: true,
+      soundEnabled: true,
+      highContrast: false,
+      reducedMotion: false,
+      questions: [],
+      currentIndex: 0,
+      currentQuestion: null,
+      score: 0,
+      streak: 0,
+      bestStreak: 0,
+      lives: 3,
+      timerRemaining: 0,
+      questionTimer: null,
+      miniGamesPlayed: 0,
+      correctAnswers: 0,
+      miniBonus: 0,
+      reviewLog: [],
+      lastResults: [],
+      awaitingNext: false
+    };
+
+    const save = loadSave();
+    const screens = {
+      homeScreen: document.getElementById("homeScreen"),
+      gameScreen: document.getElementById("gameScreen"),
+      miniGameScreen: document.getElementById("miniGameScreen"),
+      resultsScreen: document.getElementById("resultsScreen"),
+      reviewScreen: document.getElementById("reviewScreen")
+    };
+
+    const els = {
+      profileHighScore: document.getElementById("profileHighScore"),
+      profileFavorite: document.getElementById("profileFavorite"),
+      profileGamesPlayed: document.getElementById("profileGamesPlayed"),
+      categoryGrid: document.getElementById("categoryGrid"),
+      difficultyChips: document.getElementById("difficultyChips"),
+      startGameBtn: document.getElementById("startGameBtn"),
+      openSettingsBtn: document.getElementById("openSettingsBtn"),
+      openReviewBtn: document.getElementById("openReviewBtn"),
+      timerToggle: document.getElementById("timerToggle"),
+      soundToggle: document.getElementById("soundToggle"),
+      contrastToggle: document.getElementById("contrastToggle"),
+      motionToggle: document.getElementById("motionToggle"),
+      hudCategory: document.getElementById("hudCategory"),
+      hudScore: document.getElementById("hudScore"),
+      hudStreak: document.getElementById("hudStreak"),
+      hudLives: document.getElementById("hudLives"),
+      hudProgress: document.getElementById("hudProgress"),
+      hudTimer: document.getElementById("hudTimer"),
+      hudDifficulty: document.getElementById("hudDifficulty"),
+      hudCombo: document.getElementById("hudCombo"),
+      progressBar: document.getElementById("progressBar"),
+      questionCategory: document.getElementById("questionCategory"),
+      questionDifficulty: document.getElementById("questionDifficulty"),
+      questionText: document.getElementById("questionText"),
+      answersContainer: document.getElementById("answersContainer"),
+      feedbackBox: document.getElementById("feedbackBox"),
+      feedbackText: document.getElementById("feedbackText"),
+      nextQuestionBtn: document.getElementById("nextQuestionBtn"),
+      pauseRunBtn: document.getElementById("pauseRunBtn"),
+      quitRunBtn: document.getElementById("quitRunBtn"),
+      miniPreview: document.getElementById("miniPreview"),
+      miniGameTitle: document.getElementById("miniGameTitle"),
+      miniGameSubtitle: document.getElementById("miniGameSubtitle"),
+      miniGameStage: document.getElementById("miniGameStage"),
+      miniContinueBtn: document.getElementById("miniContinueBtn"),
+      resultsHeadline: document.getElementById("resultsHeadline"),
+      resultsSummary: document.getElementById("resultsSummary"),
+      resultsScore: document.getElementById("resultsScore"),
+      resultsStreak: document.getElementById("resultsStreak"),
+      resultsCorrect: document.getElementById("resultsCorrect"),
+      resultsMiniBonus: document.getElementById("resultsMiniBonus"),
+      playAgainBtn: document.getElementById("playAgainBtn"),
+      seeReviewBtn: document.getElementById("seeReviewBtn"),
+      backHomeBtn: document.getElementById("backHomeBtn"),
+      reviewList: document.getElementById("reviewList"),
+      reviewBackBtn: document.getElementById("reviewBackBtn"),
+      profileSummary: document.getElementById("profileSummary")
+    };
+
+    function loadSave() {
+      const defaults = {
+        highScore: 0,
+        favoriteCategory: "Mixed Mode",
+        totalGamesPlayed: 0,
+        highContrast: false,
+        reducedMotion: false,
+        timerEnabled: true,
+        soundEnabled: true,
+        lastReview: []
+      };
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return defaults;
+        return { ...defaults, ...JSON.parse(raw) };
+      } catch {
+        return defaults;
+      }
+    }
+
+    function persistSave() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        highScore: save.highScore,
+        favoriteCategory: save.favoriteCategory,
+        totalGamesPlayed: save.totalGamesPlayed,
+        highContrast: save.highContrast,
+        reducedMotion: save.reducedMotion,
+        timerEnabled: save.timerEnabled,
+        soundEnabled: save.soundEnabled,
+        lastReview: save.lastReview
+      }));
+    }
+
+    function shuffle(list) {
+      const copy = [...list];
+      for (let i = copy.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function showScreen(name) {
+      Object.entries(screens).forEach(([key, node]) => {
+        node.classList.toggle("active", key === name);
+      });
+    }
+
+    function updateProfileHeader() {
+      els.profileHighScore.textContent = String(save.highScore);
+      els.profileFavorite.textContent = save.favoriteCategory;
+      els.profileGamesPlayed.textContent = String(save.totalGamesPlayed);
+      els.profileSummary.textContent = `High score: ${save.highScore}. Favorite category: ${save.favoriteCategory}. Total games played: ${save.totalGamesPlayed}.`;
+    }
+
+    function applyAccessibility() {
+      document.body.classList.toggle("high-contrast", state.highContrast);
+      document.body.classList.toggle("reduced-motion", state.reducedMotion);
+    }
+
+    function renderCategoryButtons() {
+      els.categoryGrid.innerHTML = "";
+      CATEGORY_INFO.forEach((category) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "category-btn" + (state.category === category.key ? " selected" : "");
+        button.innerHTML = `<strong>${category.icon} ${category.key}</strong><small>${category.blurb}</small>`;
+        button.addEventListener("click", () => {
+          state.category = category.key;
+          save.favoriteCategory = category.key;
+          persistSave();
+          renderCategoryButtons();
+          updateProfileHeader();
+        });
+        els.categoryGrid.appendChild(button);
+      });
+    }
+
+    function renderDifficultyChips() {
+      els.difficultyChips.innerHTML = "";
+      Object.entries(DIFFICULTY_CONFIG).forEach(([key, config]) => {
+        const chip = document.createElement("button");
+        chip.type = "button";
+        chip.className = "toggle-chip" + (state.difficulty === key ? " selected" : "");
+        chip.textContent = `${config.label} · ${config.time}s`;
+        chip.addEventListener("click", () => {
+          state.difficulty = key;
+          renderDifficultyChips();
+        });
+        els.difficultyChips.appendChild(chip);
+      });
+    }
+
+    function syncSettingInputs() {
+      state.timerEnabled = save.timerEnabled;
+      state.soundEnabled = save.soundEnabled;
+      state.highContrast = save.highContrast;
+      state.reducedMotion = save.reducedMotion;
+      els.timerToggle.checked = state.timerEnabled;
+      els.soundToggle.checked = state.soundEnabled;
+      els.contrastToggle.checked = state.highContrast;
+      els.motionToggle.checked = state.reducedMotion;
+      applyAccessibility();
+    }
+
+    function updateHud() {
+      const totalQuestions = state.questions.length || 1;
+      const answered = Math.min(state.currentIndex, totalQuestions);
+      const combo = (1 + Math.min(state.streak * 0.1, 0.8)).toFixed(1);
+      els.hudCategory.textContent = state.category;
+      els.hudScore.textContent = String(state.score);
+      els.hudStreak.textContent = String(state.streak);
+      els.hudLives.textContent = "❤".repeat(state.lives) || "💀";
+      els.hudProgress.textContent = `${Math.min(answered + 1, totalQuestions)} / ${totalQuestions}`;
+      els.hudTimer.textContent = state.timerEnabled ? `${Math.max(0, state.timerRemaining)}s` : "Off";
+      els.hudDifficulty.textContent = DIFFICULTY_CONFIG[state.difficulty].label;
+      els.hudCombo.textContent = `x${combo}`;
+      els.progressBar.style.width = `${(answered / totalQuestions) * 100}%`;
+    }
+
+    function updateMiniPreview() {
+      const nextMini = ["Reaction Tap", "Memory Flash", "Speed Choice"][state.miniGamesPlayed % 3];
+      els.miniPreview.textContent = state.currentIndex >= state.questions.length
+        ? "No more mini-games. Finish strong."
+        : `Next up: ${nextMini} after question ${Math.min(state.currentIndex + 4 - (state.currentIndex % 4), state.questions.length)}.`;
+    }
+
+    function pickQuestions() {
+      const pool = state.category === "Mixed Mode"
+        ? QUESTION_BANK
+        : QUESTION_BANK.filter((question) => question.category === state.category);
+      const count = state.category === "Mixed Mode" ? 16 : Math.min(10, pool.length);
+      return shuffle(pool).slice(0, count).map((question) => ({ ...question, choices: shuffle(question.choices) }));
+    }
+
+    function startRun() {
+      state.questions = pickQuestions();
+      state.currentIndex = 0;
+      state.currentQuestion = null;
+      state.score = 0;
+      state.streak = 0;
+      state.bestStreak = 0;
+      state.correctAnswers = 0;
+      state.miniBonus = 0;
+      state.reviewLog = [];
+      state.miniGamesPlayed = 0;
+      state.awaitingNext = false;
+      state.lives = DIFFICULTY_CONFIG[state.difficulty].lives;
+      save.favoriteCategory = state.category;
+      persistSave();
+      showScreen("gameScreen");
+      showQuestion();
+    }
+
+    function showQuestion() {
+      clearInterval(state.questionTimer);
+      state.awaitingNext = false;
+      state.currentQuestion = state.questions[state.currentIndex];
+      if (!state.currentQuestion) {
+        finishRun(true);
+        return;
+      }
+      const question = state.currentQuestion;
+      els.questionCategory.textContent = `${question.category} · ${state.category === "Mixed Mode" ? "Mixed run" : "Category run"}`;
+      els.questionDifficulty.textContent = `Mode: ${DIFFICULTY_CONFIG[state.difficulty].label}`;
+      els.questionText.textContent = question.prompt;
+      els.answersContainer.innerHTML = "";
+      els.feedbackBox.querySelector("strong").textContent = "Pick one";
+      els.feedbackText.textContent = "Choose the best answer. Keyboard shortcuts 1 to 4 also work.";
+      els.nextQuestionBtn.classList.add("hidden");
+      question.choices.forEach((choice, index) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "answer-btn";
+        button.innerHTML = `<strong>${index + 1}.</strong> ${choice}`;
+        button.addEventListener("click", () => submitAnswer(choice));
+        els.answersContainer.appendChild(button);
+      });
+      state.timerRemaining = state.timerEnabled ? DIFFICULTY_CONFIG[state.difficulty].time : 0;
+      if (state.timerEnabled) {
+        state.questionTimer = setInterval(() => {
+          state.timerRemaining -= 1;
+          updateHud();
+          if (state.timerRemaining <= 0) {
+            clearInterval(state.questionTimer);
+            submitAnswer(null, true);
+          }
+        }, 1000);
+      }
+      updateHud();
+      updateMiniPreview();
+    }
+
+    function submitAnswer(choice, timedOut = false) {
+      if (state.awaitingNext) return;
+      clearInterval(state.questionTimer);
+      const question = state.currentQuestion;
+      const isCorrect = !timedOut && choice === question.answer;
+      const answerButtons = [...els.answersContainer.querySelectorAll(".answer-btn")];
+      answerButtons.forEach((button) => {
+        const rawText = button.textContent.replace(/^\d+\.\s*/, "");
+        button.classList.add("locked");
+        if (rawText === question.answer) button.classList.add("correct");
+        if (!timedOut && rawText === choice && rawText !== question.answer) button.classList.add("wrong");
+      });
+      let heading = "Not quite";
+      let body = `${question.explanation}`;
+      if (timedOut) {
+        heading = "Timer wiped you";
+        state.lives -= 1;
+        state.streak = 0;
+        body = `Time ran out. ${question.explanation}`;
+        playTone("wrong");
+      } else if (isCorrect) {
+        const base = Math.round(100 * DIFFICULTY_CONFIG[state.difficulty].scoreMultiplier);
+        const timeBonus = state.timerEnabled ? state.timerRemaining * 5 : 30;
+        const streakBonus = state.streak * 15;
+        const totalGain = base + timeBonus + streakBonus;
+        state.score += totalGain;
+        state.streak += 1;
+        state.correctAnswers += 1;
+        state.bestStreak = Math.max(state.bestStreak, state.streak);
+        heading = `Correct. +${totalGain}`;
+        body = `${question.explanation} Combo bonus included: +${streakBonus}.`;
+        playTone("correct");
+      } else {
+        state.lives -= 1;
+        state.streak = 0;
+        body = `Correct answer: ${question.answer}. ${question.explanation}`;
+        playTone("wrong");
+      }
+      state.reviewLog.push({
+        prompt: question.prompt,
+        category: question.category,
+        chosen: timedOut ? "No answer" : choice,
+        correct: question.answer,
+        explanation: question.explanation,
+        result: isCorrect ? "correct" : "wrong"
+      });
+      els.feedbackBox.querySelector("strong").textContent = heading;
+      els.feedbackText.textContent = body;
+      state.awaitingNext = true;
+      els.nextQuestionBtn.classList.remove("hidden");
+      updateHud();
+      if (state.lives <= 0) {
+        els.nextQuestionBtn.textContent = "See Results";
+      } else if ((state.currentIndex + 1) % 4 === 0 && state.currentIndex + 1 < state.questions.length) {
+        els.nextQuestionBtn.textContent = "Mini-Game Break";
+      } else if (state.currentIndex + 1 >= state.questions.length) {
+        els.nextQuestionBtn.textContent = "Finish Run";
+      } else {
+        els.nextQuestionBtn.textContent = "Next Question";
+      }
+    }
+
+    function advanceFromQuestion() {
+      if (!state.awaitingNext) return;
+      if (state.lives <= 0) {
+        finishRun(false);
+        return;
+      }
+      state.currentIndex += 1;
+      if (state.currentIndex > 0 && state.currentIndex % 4 === 0 && state.currentIndex < state.questions.length) {
+        launchMiniGame();
+        return;
+      }
+      if (state.currentIndex >= state.questions.length) {
+        finishRun(true);
+        return;
+      }
+      showQuestion();
+    }
+
+    function launchMiniGame() {
+      showScreen("miniGameScreen");
+      els.miniContinueBtn.classList.add("hidden");
+      const sequence = state.miniGamesPlayed % 3;
+      state.miniGamesPlayed += 1;
+      if (sequence === 0) renderReactionMiniGame();
+      else if (sequence === 1) renderMemoryMiniGame();
+      else renderSpeedMiniGame();
+    }
+
+    function finishMiniGame(summary, deltaScore) {
+      state.score += deltaScore;
+      state.miniBonus += deltaScore;
+      els.miniGameSubtitle.textContent = summary;
+      els.miniContinueBtn.classList.remove("hidden");
+      updateHud();
+      playTone(deltaScore >= 0 ? "bonus" : "wrong");
+    }
+
+    function continueAfterMiniGame() {
+      if (state.currentIndex >= state.questions.length) {
+        finishRun(true);
+      } else {
+        showScreen("gameScreen");
+        showQuestion();
+      }
+    }
+
+    function renderReactionMiniGame() {
+      els.miniGameTitle.textContent = "Mini-Game: Reaction Tap";
+      els.miniGameSubtitle.textContent = "Click only when it turns green. Too early and you get clowned.";
+      els.miniGameStage.innerHTML = "";
+      const light = document.createElement("button");
+      light.type = "button";
+      light.className = "reaction-light";
+      light.textContent = "Wait for green";
+      els.miniGameStage.appendChild(light);
+      let ready = false;
+      let locked = false;
+      let startTime = 0;
+      const timer = setTimeout(() => {
+        ready = true;
+        startTime = performance.now();
+        light.classList.add("ready");
+        light.textContent = "TAP NOW";
+      }, 1200 + Math.random() * 1500);
+      light.addEventListener("click", () => {
+        if (locked) return;
+        locked = true;
+        clearTimeout(timer);
+        if (!ready) {
+          finishMiniGame("Too early. Your reflexes got baited. -40 points.", -40);
+          light.textContent = "Too Soon";
+          light.classList.remove("ready");
+          return;
+        }
+        const reaction = Math.max(0, Math.round(performance.now() - startTime));
+        const bonus = Math.max(40, 180 - Math.round(reaction / 4));
+        light.textContent = `${reaction} ms`;
+        finishMiniGame(`Nice. Reaction time: ${reaction} ms. +${bonus} points.`, bonus);
+      });
+    }
+
+    function renderMemoryMiniGame() {
+      els.miniGameTitle.textContent = "Mini-Game: Memory Flash";
+      els.miniGameSubtitle.textContent = "Watch the order, then repeat it exactly.";
+      els.miniGameStage.innerHTML = "";
+      const length = DIFFICULTY_CONFIG[state.difficulty].memoryLength;
+      const pattern = Array.from({ length }, () => MEMORY_COLORS[Math.floor(Math.random() * MEMORY_COLORS.length)]);
+      const note = document.createElement("p");
+      note.className = "small-note";
+      note.textContent = "Memorize first. Buttons unlock after the flash sequence.";
+      const grid = document.createElement("div");
+      grid.className = "memory-grid";
+      const userPattern = [];
+      els.miniGameStage.append(note, grid);
+      const buttons = MEMORY_COLORS.map((entry) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "memory-btn";
+        button.disabled = true;
+        button.textContent = entry.name;
+        button.style.background = `${entry.color}22`;
+        button.style.borderColor = `${entry.color}88`;
+        grid.appendChild(button);
+        return { entry, button };
+      });
+      let flashIndex = 0;
+      function flashNext() {
+        if (flashIndex >= pattern.length) {
+          note.textContent = "Your turn. Repeat the pattern.";
+          buttons.forEach(({ button }) => { button.disabled = false; });
+          return;
+        }
+        const current = pattern[flashIndex];
+        const target = buttons.find((item) => item.entry.name === current.name);
+        target.button.classList.add("flash");
+        playTone("tick");
+        setTimeout(() => {
+          target.button.classList.remove("flash");
+          flashIndex += 1;
+          setTimeout(flashNext, 180);
+        }, 480);
+      }
+      setTimeout(flashNext, 300);
+      buttons.forEach(({ entry, button }) => {
+        button.addEventListener("click", () => {
+          if (button.disabled) return;
+          userPattern.push(entry.name);
+          const checkIndex = userPattern.length - 1;
+          if (userPattern[checkIndex] !== pattern[checkIndex].name) {
+            buttons.forEach(({ button: item }) => { item.disabled = true; });
+            finishMiniGame(`Memory break. The correct pattern started with ${pattern.map((item) => item.name).join(" → ")}. -35 points.`, -35);
+            return;
+          }
+          if (userPattern.length === pattern.length) {
+            buttons.forEach(({ button: item }) => { item.disabled = true; });
+            const bonus = 70 + pattern.length * 25;
+            finishMiniGame(`Clean repeat. Pattern nailed. +${bonus} points.`, bonus);
+          }
+        });
+      });
+    }
+
+    function renderSpeedMiniGame() {
+      els.miniGameTitle.textContent = "Mini-Game: Speed Choice";
+      els.miniGameSubtitle.textContent = "Pick the correct fact before the tiny timer cooks you.";
+      els.miniGameStage.innerHTML = "";
+      const prompt = SPEED_FACTS[Math.floor(Math.random() * SPEED_FACTS.length)];
+      const wrap = document.createElement("div");
+      wrap.style.width = "min(520px, 100%)";
+      wrap.innerHTML = `<h3>${prompt.prompt}</h3><p class="small-note" id="speedTimerLabel">Time left: 6s</p>`;
+      const grid = document.createElement("div");
+      grid.className = "speed-grid";
+      const left = document.createElement("button");
+      const right = document.createElement("button");
+      left.type = "button";
+      right.type = "button";
+      left.className = "speed-btn";
+      right.className = "speed-btn";
+      left.textContent = prompt.left;
+      right.textContent = prompt.right;
+      grid.append(left, right);
+      wrap.appendChild(grid);
+      els.miniGameStage.appendChild(wrap);
+      let remaining = state.difficulty === "chaos" ? 4 : 6;
+      const timerLabel = wrap.querySelector("#speedTimerLabel");
+      let resolved = false;
+      const interval = setInterval(() => {
+        remaining -= 1;
+        timerLabel.textContent = `Time left: ${remaining}s`;
+        if (remaining <= 0 && !resolved) {
+          resolved = true;
+          clearInterval(interval);
+          finishMiniGame(`Too slow. Correct answer: ${prompt.correct}. ${prompt.explanation} -30 points.`, -30);
+        }
+      }, 1000);
+      function choose(option) {
+        if (resolved) return;
+        resolved = true;
+        clearInterval(interval);
+        if (option === prompt.correct) finishMiniGame(`${prompt.explanation} +90 points.`, 90);
+        else finishMiniGame(`Wrong pick. Correct answer: ${prompt.correct}. ${prompt.explanation} -25 points.`, -25);
+      }
+      left.addEventListener("click", () => choose(prompt.left));
+      right.addEventListener("click", () => choose(prompt.right));
+    }
+
+    function finishRun(won) {
+      clearInterval(state.questionTimer);
+      showScreen("resultsScreen");
+      save.totalGamesPlayed += 1;
+      save.highScore = Math.max(save.highScore, state.score);
+      save.favoriteCategory = state.category;
+      save.lastReview = state.reviewLog;
+      persistSave();
+      updateProfileHeader();
+      state.lastResults = state.reviewLog;
+      els.resultsHeadline.textContent = won ? "You cleared the trivia run" : "Run over, brain fried";
+      els.resultsSummary.textContent = won
+        ? "You finished the full set and kept your combo alive long enough to flex."
+        : "You ran out of hearts, but the review screen will help you clap back next time.";
+      els.resultsScore.textContent = String(state.score);
+      els.resultsStreak.textContent = String(state.bestStreak);
+      els.resultsCorrect.textContent = `${state.correctAnswers} / ${state.questions.length}`;
+      els.resultsMiniBonus.textContent = String(state.miniBonus);
+      renderReviewList(save.lastReview);
+    }
+
+    function renderReviewList(items) {
+      const reviewItems = items && items.length ? items : save.lastReview || [];
+      els.reviewList.innerHTML = "";
+      if (!reviewItems.length) {
+        els.reviewList.innerHTML = `<div class="review-item"><h4>No run yet</h4><p>Start a game first and your review list will show up here.</p></div>`;
+        return;
+      }
+      reviewItems.forEach((entry, index) => {
+        const item = document.createElement("div");
+        item.className = "review-item";
+        item.innerHTML = `
+          <h4>${index + 1}. ${entry.prompt}</h4>
+          <div class="tag-row">
+            <span class="tag">${entry.category}</span>
+            <span class="tag ${entry.result === "correct" ? "good" : "bad"}">${entry.result === "correct" ? "Correct" : "Missed"}</span>
+          </div>
+          <p><strong>Your answer:</strong> ${entry.chosen || "No answer"}</p>
+          <p><strong>Correct answer:</strong> ${entry.correct}</p>
+          <p>${entry.explanation}</p>
+        `;
+        els.reviewList.appendChild(item);
+      });
+    }
+
+    function playTone(kind) {
+      if (!state.soundEnabled) return;
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      if (!playTone.ctx) playTone.ctx = new AudioCtx();
+      const audioCtx = playTone.ctx;
+      const oscillator = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      oscillator.type = kind === "wrong" ? "square" : "sine";
+      oscillator.frequency.value = kind === "correct" ? 660 : kind === "bonus" ? 880 : kind === "tick" ? 520 : 220;
+      gain.gain.value = kind === "tick" ? 0.03 : 0.05;
+      oscillator.connect(gain);
+      gain.connect(audioCtx.destination);
+      oscillator.start();
+      oscillator.stop(audioCtx.currentTime + (kind === "tick" ? 0.08 : 0.18));
+    }
+
+    function showReviewScreen() {
+      renderReviewList(save.lastReview);
+      showScreen("reviewScreen");
+    }
+
+    function bindEvents() {
+      els.startGameBtn.addEventListener("click", startRun);
+      els.openSettingsBtn.addEventListener("click", () => {
+        document.getElementById("settingsPanel").scrollIntoView({ behavior: state.reducedMotion ? "auto" : "smooth", block: "center" });
+      });
+      els.openReviewBtn.addEventListener("click", showReviewScreen);
+      els.nextQuestionBtn.addEventListener("click", advanceFromQuestion);
+      els.pauseRunBtn.addEventListener("click", () => {
+        clearInterval(state.questionTimer);
+        els.feedbackBox.querySelector("strong").textContent = "Paused";
+        els.feedbackText.textContent = "Tap Next or press Enter when ready.";
+        state.awaitingNext = true;
+        els.nextQuestionBtn.classList.remove("hidden");
+        els.nextQuestionBtn.textContent = "Resume Question";
+      });
+      els.quitRunBtn.addEventListener("click", () => showScreen("homeScreen"));
+      els.miniContinueBtn.addEventListener("click", continueAfterMiniGame);
+      els.playAgainBtn.addEventListener("click", () => {
+        showScreen("homeScreen");
+        startRun();
+      });
+      els.seeReviewBtn.addEventListener("click", showReviewScreen);
+      els.backHomeBtn.addEventListener("click", () => showScreen("homeScreen"));
+      els.reviewBackBtn.addEventListener("click", () => showScreen("resultsScreen"));
+      els.timerToggle.addEventListener("change", (event) => {
+        state.timerEnabled = event.target.checked;
+        save.timerEnabled = state.timerEnabled;
+        persistSave();
+      });
+      els.soundToggle.addEventListener("change", (event) => {
+        state.soundEnabled = event.target.checked;
+        save.soundEnabled = state.soundEnabled;
+        persistSave();
+      });
+      els.contrastToggle.addEventListener("change", (event) => {
+        state.highContrast = event.target.checked;
+        save.highContrast = state.highContrast;
+        persistSave();
+        applyAccessibility();
+      });
+      els.motionToggle.addEventListener("change", (event) => {
+        state.reducedMotion = event.target.checked;
+        save.reducedMotion = state.reducedMotion;
+        persistSave();
+        applyAccessibility();
+      });
+      document.addEventListener("keydown", (event) => {
+        if (screens.gameScreen.classList.contains("active")) {
+          if (["1", "2", "3", "4"].includes(event.key) && !state.awaitingNext) {
+            const index = Number(event.key) - 1;
+            const button = els.answersContainer.querySelectorAll(".answer-btn")[index];
+            if (button) button.click();
+          }
+          if (event.key === "Enter" && !els.nextQuestionBtn.classList.contains("hidden")) {
+            els.nextQuestionBtn.click();
+          }
+        }
+        if (screens.miniGameScreen.classList.contains("active") && event.key === "Enter" && !els.miniContinueBtn.classList.contains("hidden")) {
+          els.miniContinueBtn.click();
+        }
+        if (event.key === "Escape") {
+          showScreen("homeScreen");
+        }
+      });
+    }
+
+    renderCategoryButtons();
+    renderDifficultyChips();
+    syncSettingInputs();
+    updateProfileHeader();
+    renderReviewList(save.lastReview);
+    bindEvents();
+    updateHud();
+    updateMiniPreview();
+  </script>
+</body>
+</html>

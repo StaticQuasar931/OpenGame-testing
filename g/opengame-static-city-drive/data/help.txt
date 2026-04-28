@@ -1,0 +1,17 @@
+title Static City Drive: OpenGame Edition
+
+controls
+- Use arrow keys to navigate.
+
+objective
+- Avoid the police and reach your destination in time.
+
+police chase explanation
+- The police will chase you if they spot you.
+- You must evade them to complete the mission.
+
+pulse tool explanation
+- Use the pulse tool strategically.
+- It can help you detect hidden items or areas.
+
+note that this version was generated through OpenGame with local Ollama assistance

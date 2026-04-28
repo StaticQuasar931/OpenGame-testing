@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-label="Static's Trivia preview">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1b1242"/>
+      <stop offset="50%" stop-color="#2e1f72"/>
+      <stop offset="100%" stop-color="#120b26"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <circle cx="220" cy="180" r="110" fill="#ff5ca8" opacity="0.24"/>
+  <circle cx="1360" cy="190" r="140" fill="#5fe7ff" opacity="0.18"/>
+  <rect x="130" y="160" width="1340" height="590" rx="34" fill="#141028" stroke="#ffffff22" stroke-width="4"/>
+  <rect x="190" y="230" width="640" height="410" rx="28" fill="#23184f"/>
+  <rect x="870" y="230" width="540" height="170" rx="24" fill="#251a55"/>
+  <rect x="870" y="430" width="250" height="210" rx="24" fill="#20174a"/>
+  <rect x="1160" y="430" width="250" height="210" rx="24" fill="#20174a"/>
+  <text x="210" y="300" fill="#ffffff" font-size="70" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Static's Trivia</text>
+  <text x="210" y="355" fill="#cabfff" font-size="32" font-family="Segoe UI, Arial, sans-serif">Teen-style browser trivia with combo streaks</text>
+  <text x="210" y="455" fill="#ffd35c" font-size="48" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Question 7 of 16</text>
+  <text x="210" y="530" fill="#f4f0ff" font-size="34" font-family="Segoe UI, Arial, sans-serif">Which K-pop group released "Dynamite"?</text>
+  <rect x="210" y="570" width="250" height="44" rx="22" fill="#ff5ca833"/>
+  <rect x="490" y="570" width="250" height="44" rx="22" fill="#5fe7ff33"/>
+  <text x="240" y="600" fill="#ffffff" font-size="24" font-family="Segoe UI, Arial, sans-serif">1. BLACKPINK</text>
+  <text x="520" y="600" fill="#ffffff" font-size="24" font-family="Segoe UI, Arial, sans-serif">2. BTS</text>
+  <rect x="900" y="260" width="480" height="32" rx="16" fill="#ffffff12"/>
+  <rect x="900" y="260" width="320" height="32" rx="16" fill="#5fe7ff"/>
+  <text x="900" y="335" fill="#ffffff" font-size="46" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Score 1480</text>
+  <text x="900" y="378" fill="#baff69" font-size="26" font-family="Segoe UI, Arial, sans-serif">Combo x1.4</text>
+  <text x="920" y="510" fill="#ffffff" font-size="44" font-family="Segoe UI, Arial, sans-serif">❤❤❤</text>
+  <text x="1190" y="510" fill="#ffffff" font-size="44" font-family="Segoe UI, Arial, sans-serif">14s</text>
+</svg>

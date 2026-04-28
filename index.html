@@ -23,7 +23,11 @@
       .thumb { width:100%; aspect-ratio:16/9; object-fit:cover; display:block; background:#05070b; }
       .meta { padding:18px 18px 20px; }
       .num { display:inline-block; margin-bottom:10px; padding:6px 10px; border-radius:999px; font-size:.76rem; font-weight:700; }
-      .n1 { background:rgba(123,217,255,.14); color:var(--cyan); } .n2 { background:rgba(255,214,110,.14); color:var(--gold); } .n3 { background:rgba(255,125,208,.14); color:var(--pink); }
+      .n1 { background:rgba(123,217,255,.14); color:var(--cyan); }
+      .n2 { background:rgba(255,214,110,.14); color:var(--gold); }
+      .n3 { background:rgba(255,125,208,.14); color:var(--pink); }
+      .n4 { background:rgba(184,255,102,.14); color:#b8ff66; }
+      .n5 { background:rgba(255,255,255,.14); color:#f2f6ff; }
       h2 { margin:0 0 10px; font-size:1.45rem; }
       .meta strong { color:var(--text); }
       @media (max-width: 900px) { .hero { grid-template-columns:1fr; } }
@@ -34,16 +38,17 @@
       <section class="hero">
         <article class="panel">
           <p class="eyebrow">Static Browser Arcade</p>
-          <h1>Three playable browser games, one clean launcher.</h1>
+          <h1>Five playable browser games, one clean launcher.</h1>
           <p class="lede">This repo is organized for direct browser play and GitHub Pages style hosting. Each game lives in <code>g/</code>. Extras, previews, and OpenGame notes live in <code>misc/</code>.</p>
-          <div class="stamp"><span>Build 03</span><span>2026-04-27</span><span>America/Los_Angeles</span></div>
+          <div class="stamp"><span>Build 05</span><span>2026-04-28</span><span>America/Los_Angeles</span></div>
         </article>
         <aside class="panel">
           <p class="eyebrow">Notes</p>
           <ul class="notes">
             <li>You can try multiple games from this page.</li>
             <li>Game 03 is an original open-world city driving game inspired by the genre, not GTA assets.</li>
-            <li>OpenGame is installed locally here, but its full generator runtime still needs external auth. See <code>misc/opengame/</code>.</li>
+            <li>Game 04 is the OpenGame-built local Ollama version after compatibility repair passes.</li>
+            <li>Game 05 is a one-file custom trivia game with saves, mini-games, and review mode.</li>
           </ul>
         </aside>
       </section>
@@ -59,6 +64,14 @@
         <a class="game-card" href="./g/static-city-drive/index.html">
           <img class="thumb" src="./misc/assets/static-city-drive-preview.svg" alt="Static City Drive preview" />
           <div class="meta"><span class="num n3">03</span><h2>Static City Drive</h2><p>Original GTA-style city driving and action with package runs, police pressure, boost, and an EMP blaster.</p><strong>Open game</strong></div>
+        </a>
+        <a class="game-card" href="./g/opengame-static-city-drive/index.html">
+          <img class="thumb" src="./misc/assets/opengame-static-city-drive-preview.svg" alt="OpenGame Static City Drive preview" />
+          <div class="meta"><span class="num n4">04</span><h2>OpenGame Static City Drive</h2><p>The locally generated OpenGame build, produced with the repaired Ollama setup and kept as its own separate version.</p><strong>Open game</strong></div>
+        </a>
+        <a class="game-card" href="./g/statics-trivia/index.html">
+          <img class="thumb" src="./misc/assets/statics-trivia-preview.svg" alt="Static's Trivia preview" />
+          <div class="meta"><span class="num n5">05</span><h2>Static's Trivia</h2><p>Bright one-file trivia chaos with real facts, mini-games, streaks, timers, and a full review screen.</p><strong>Open game</strong></div>
         </a>
       </section>
     </main>

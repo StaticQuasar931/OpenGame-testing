@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Static City Drive</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="title-screen">
+    <h1>Welcome to Static City Drive</h1>
+    <p>Press 'P' to pause and resume the game.</p>
+    <div>
+        <button id="start-button">Start Game</button>
+        <button id="help-button">Help</button>
+    </div>
+</div>
+
+<div id="pause-overlay" style="display: none;">
+    <h1>Paused</h1>
+    <button id="resume-button">Resume</button>
+    <button id="restart-button">Restart</button>
+</div>
+
+<div id="game-over-screen" style="display: none;">
+    <h1>Game Over</h1>
+    <p>Try again!</p>
+    <button id="restart-game-over-button">Restart</button>
+</div>
+
+<div id="victory-screen" style="display: none;">
+    <h1>Congratulations! You Win!</h1>
+    <button id="restart-victory-button">Restart</button>
+</div>
+
+<canvas id="gameCanvas" width="800" height="600"></canvas>
+
+<div id="hud">
+    <div>
+        <h2>HUD Panel</h2>
+        <p>Score: <span id="score">0</span></p>
+        <p>Level: <span id="level">1</span></p>
+        <p>Health: <span id="health">100%</span></p>
+        <p>Packages Collected: <span id="packagesCollected">0</span></p>
+    </div>
+    <canvas id="miniMap" width="200" height="200"></canvas>
+    <div>
+        <p>Timer: <span id="timer">0</span></p>
+        <p>Wanted Level: <span id="wantedLevel">1</span></p>
+        <p>Police Hits: <span id="policeHits">0</span></p>
+    </div>
+    <button id="audio-toggle">Toggle Audio</button>
+</div>
+
+<script src="js/game.js"></script>
+
+</body>
+</html>
