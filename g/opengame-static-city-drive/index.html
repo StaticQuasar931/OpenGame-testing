@@ -1,59 +1,123 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Static City Drive</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenGame Static City Drive</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-<div id="title-screen">
-    <h1>Welcome to Static City Drive</h1>
-    <p>Press 'P' to pause and resume the game.</p>
-    <div>
-        <button id="start-button">Start Game</button>
-        <button id="help-button">Help</button>
+  <div class="screen active" id="title-screen">
+    <div class="panel hero">
+      <p class="eyebrow">OpenGame Edition</p>
+      <h1>Static City Drive</h1>
+      <p class="lede">Collect 10 glowing packages across the city before the chase gets out of hand. This version started as the locally generated OpenGame build and was then tuned into a fully playable arcade run.</p>
+      <div class="button-row">
+        <button id="start-button" class="primary">Start Run</button>
+        <button id="help-button">Controls</button>
+        <button id="audio-toggle">Sound: On</button>
+      </div>
+      <div class="info-grid">
+        <div class="info-card"><strong>Drive</strong><span>WASD or arrows</span></div>
+        <div class="info-card"><strong>Brake</strong><span>Space</span></div>
+        <div class="info-card"><strong>Boost</strong><span>Shift</span></div>
+        <div class="info-card"><strong>Pulse Tool</strong><span>F</span></div>
+        <div class="info-card"><strong>Reset Car</strong><span>R</span></div>
+        <div class="info-card"><strong>Pause</strong><span>P</span></div>
+      </div>
     </div>
-</div>
+  </div>
 
-<div id="pause-overlay" style="display: none;">
-    <h1>Paused</h1>
-    <button id="resume-button">Resume</button>
-    <button id="restart-button">Restart</button>
-</div>
-
-<div id="game-over-screen" style="display: none;">
-    <h1>Game Over</h1>
-    <p>Try again!</p>
-    <button id="restart-game-over-button">Restart</button>
-</div>
-
-<div id="victory-screen" style="display: none;">
-    <h1>Congratulations! You Win!</h1>
-    <button id="restart-victory-button">Restart</button>
-</div>
-
-<canvas id="gameCanvas" width="800" height="600"></canvas>
-
-<div id="hud">
-    <div>
-        <h2>HUD Panel</h2>
-        <p>Score: <span id="score">0</span></p>
-        <p>Level: <span id="level">1</span></p>
-        <p>Health: <span id="health">100%</span></p>
-        <p>Packages Collected: <span id="packagesCollected">0</span></p>
+  <div class="screen" id="help-overlay">
+    <div class="panel modal">
+      <h2>How to Play</h2>
+      <p>Drive around the city and collect all 10 glowing packages. After the third pickup, police cruisers start hunting you down.</p>
+      <ul class="help-list">
+        <li>WASD or arrow keys steer and drive.</li>
+        <li>Space brakes hard for tight corners.</li>
+        <li>Shift gives a short boost burst.</li>
+        <li>F fires an arcade pulse that shoves nearby police away.</li>
+        <li>Three police hits ends the run.</li>
+        <li>R resets your car position if you get wedged.</li>
+      </ul>
+      <div class="button-row">
+        <button id="close-help-button" class="primary">Back</button>
+      </div>
     </div>
-    <canvas id="miniMap" width="200" height="200"></canvas>
-    <div>
-        <p>Timer: <span id="timer">0</span></p>
-        <p>Wanted Level: <span id="wantedLevel">1</span></p>
-        <p>Police Hits: <span id="policeHits">0</span></p>
+  </div>
+
+  <div class="hud-shell">
+    <canvas id="gameCanvas" width="1280" height="720" aria-label="OpenGame Static City Drive play area"></canvas>
+    <div id="hud">
+      <div class="hud-card">
+        <span>Packages</span>
+        <strong id="packagesCollected">0 / 10</strong>
+      </div>
+      <div class="hud-card">
+        <span>Score</span>
+        <strong id="score">0</strong>
+      </div>
+      <div class="hud-card">
+        <span>Time</span>
+        <strong id="timer">0.0s</strong>
+      </div>
+      <div class="hud-card">
+        <span>Wanted</span>
+        <strong id="wantedLevel">Cold</strong>
+      </div>
+      <div class="hud-card">
+        <span>Integrity</span>
+        <strong id="health">3 / 3</strong>
+      </div>
+      <div class="hud-card">
+        <span>Police Hits</span>
+        <strong id="policeHits">0 / 3</strong>
+      </div>
+      <div class="hud-card">
+        <span>Pulse</span>
+        <strong id="level">Ready</strong>
+      </div>
+      <div class="hud-card wide">
+        <span>Hint</span>
+        <strong id="statusText">Grab the first package and build speed.</strong>
+      </div>
     </div>
-    <button id="audio-toggle">Toggle Audio</button>
-</div>
+    <div class="mini-shell">
+      <canvas id="miniMap" width="190" height="190" aria-label="City minimap"></canvas>
+    </div>
+  </div>
 
-<script src="js/game.js"></script>
+  <div class="screen" id="pause-overlay">
+    <div class="panel modal">
+      <h2>Paused</h2>
+      <p>Catch your breath. The city will wait.</p>
+      <div class="button-row">
+        <button id="resume-button" class="primary">Resume</button>
+        <button id="restart-button">Restart</button>
+      </div>
+    </div>
+  </div>
 
+  <div class="screen" id="game-over-screen">
+    <div class="panel modal">
+      <h2>Police Shut You Down</h2>
+      <p id="game-over-copy">Three hits was all it took.</p>
+      <div class="button-row">
+        <button id="restart-game-over-button" class="primary">Try Again</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="screen" id="victory-screen">
+    <div class="panel modal">
+      <h2>Route Complete</h2>
+      <p id="victory-copy">All packages secured.</p>
+      <div class="button-row">
+        <button id="restart-victory-button" class="primary">Run It Back</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/game.js"></script>
 </body>
 </html>

@@ -1,14 +1,13 @@
-# OpenGame-Generated Static City Drive
+# OpenGame Static City Drive
 
-This folder contains the OpenGame-generated version of Static City Drive.
-It was generated locally with OpenGame plus Ollama after several repair passes.
+This folder is the OpenGame-built version of `Static City Drive`, generated locally with the repaired OpenGame plus Ollama setup and then polished into a complete playable arcade game.
 
-To play, open `index.html` in a web browser.
+Open `index.html` in a browser to play.
 
-## Controls
-- **Movement:** Arrows or WASD keys
-- **Actions:** Spacebar
-- **Shift Key:**
-- **R Key:**
-- **F Key:**
-- **P Key:**
+Controls:
+- `WASD` or arrow keys: steer and drive
+- `Space`: brake
+- `Shift`: boost
+- `F`: pulse tool
+- `R`: reset car to center route
+- `P`: pause

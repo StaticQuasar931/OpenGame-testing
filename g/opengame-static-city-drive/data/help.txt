@@ -1,17 +1,19 @@
-title Static City Drive: OpenGame Edition
+Static City Drive: OpenGame Edition
 
-controls
-- Use arrow keys to navigate.
+Objective:
+Collect all 10 glowing packages across the city grid.
 
-objective
-- Avoid the police and reach your destination in time.
+Threat:
+After 3 pickups, police cruisers begin chasing you.
+Three police hits ends the run.
 
-police chase explanation
-- The police will chase you if they spot you.
-- You must evade them to complete the mission.
+Controls:
+WASD or arrow keys = drive
+Space = brake
+Shift = boost
+F = pulse tool
+R = reset car
+P = pause
 
-pulse tool explanation
-- Use the pulse tool strategically.
-- It can help you detect hidden items or areas.
-
-note that this version was generated through OpenGame with local Ollama assistance
+Note:
+This folder started as the locally generated OpenGame version and was tuned into a cleaner playable build for direct browser use.
